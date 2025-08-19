@@ -287,10 +287,10 @@ plt.legend()
 plt.tight_layout()
 plt.savefig('figure2_power_spectra.png')  # Save for inclusion
 
-# Generate Figure 3: Spike Raster Plot for network (20% connectivity)
+# Generate Figure 3: Spike Raster Plot for network (2% connectivity)
 plt.figure(figsize=(10, 6))
 plt.eventplot(spike_times_net, orientation='horizontal', colors='b')
-plt.title('Spike Raster Plot (Network, 20% Connectivity)')
+plt.title('Spike Raster Plot (Network, 2% Connectivity)')
 plt.xlabel('Time (ms)')
 plt.ylabel('Neuron Index')
 plt.tight_layout()
