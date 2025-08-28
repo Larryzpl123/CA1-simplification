@@ -1,3 +1,4 @@
+#from Larry (Peilin) Zhong, https://larryzpl123.github.io/
 import numpy as np  # Library for numerical arrays and math functions
 from scipy.integrate import solve_ivp  # For solving differential equations
 import time  # Standard library for timing execution
