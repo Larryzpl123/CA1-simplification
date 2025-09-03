@@ -1,5 +1,5 @@
 # CA1-simplification
-CA1-simplification-Code/Result/Figure <br/>
+CA1-simplification-Code/Result/Figure <br/><br/>
 Figure 1
 ![Figure1](figure1_voltage_traces.png "Figure 1")
 Figure 2
