@@ -12,9 +12,10 @@ Power spectrum of the network local field potential (mean voltage across neurons
 - Figure 5.
 Power spectrum of the scaled network local field potential (80 excitatory + 20 inhibitory neurons, 2% connectivity), showing enhanced theta and gamma oscillations. <br/>
 - Figure 6.
-Power spectrum of the hybrid network local field potential (8 excitatory + 2 inhibitory neurons, 2% connectivity), highlighting improved gamma rhythms due to detailed inhibitory modeling. <br/><br/>
+Power spectrum of the hybrid network local field potential (8 excitatory + 2 inhibitory neurons, 2% connectivity), highlighting improved gamma rhythms due to detailed inhibitory modeling. <br/>
 - Results
-Results from IDLE, Python 3.13.3, hardware - Apple M2, 24GB, 8 Cores (4 performance and 4 efficiency)
+From IDLE, Python 3.13.3, hardware - Apple M2, 24GB, 8 Cores (4 performance and 4 efficiency)
+<br/><br/>
 
 Figure 1
 ![Figure1](figure1_voltage_traces.png "Figure 1")
