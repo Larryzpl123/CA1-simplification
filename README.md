@@ -1,5 +1,5 @@
 # CA1-simplification 
-CA1-simplification-Code/Result/Figure <br/><br/>
+CA1-simplification-Code/Result/Figure <br/><br/> 
 
 - Figure 1.
 Membrane potential traces for HH (top) and LIF (bottom) models under 6 Hz theta-modulated input, illustrating preserved spiking under simplification. <br/>
