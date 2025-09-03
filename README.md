@@ -16,7 +16,7 @@ Power spectrum of the hybrid network local field potential (8 excitatory + 2 inh
 - Results
 From IDLE, Python 3.13.3, hardware - Apple M2, 24GB, 8 Cores (4 performance and 4 efficiency)
 <br/><br/>
-
+ 
 Figure 1
 ![Figure1](figure1_voltage_traces.png "Figure 1")
 Figure 2
