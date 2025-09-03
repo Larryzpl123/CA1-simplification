@@ -14,7 +14,7 @@ Power spectrum of the scaled network local field potential (80 excitatory + 20 i
 - Figure 6.
 Power spectrum of the hybrid network local field potential (8 excitatory + 2 inhibitory neurons, 2% connectivity), highlighting improved gamma rhythms due to detailed inhibitory modeling. <br/><br/>
 - Results
-Results from IDLE, hardware - Apple M2, 24GB, 8 Cores (4 performance and 4 efficiency)
+Results from IDLE, Python 3.13.3, hardware - Apple M2, 24GB, 8 Cores (4 performance and 4 efficiency)
 
 Figure 1
 ![Figure1](figure1_voltage_traces.png "Figure 1")
