@@ -1,4 +1,6 @@
 #from Larry (Peilin) Zhong, https://larryzpl123.github.io/
+#https://github.com/Larryzpl123/CA1-simplification/
+
 import numpy as np  # Library for numerical arrays and math functions
 from scipy.integrate import solve_ivp  # For solving differential equations
 import time  # Standard library for timing execution
