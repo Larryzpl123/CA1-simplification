@@ -47,6 +47,8 @@ If you use this code, please cite the preprint:
 > Zhong, P. (2026). Simplification Strategies for Biologically Constrained
 > Hippocampal CA1 Microcircuit Models. bioRxiv. https://doi.org/XXXXX
 
+Archived code (this repository): https://doi.org/10.5281/zenodo.21265446
+
 ## License
 
 Code released under the MIT License (see `LICENSE`).
