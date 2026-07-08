@@ -1,0 +1,9 @@
+Model Type	Rate (Hz)	Time (s)	Theta pk(Hz)	Theta prom(dB)	Gamma pk(Hz)	Gamma prom(dB)
+HH (Single)	68.0 ± 0.0	1.225 ± 0.111	6.0	28.5	68.0	34.0
+LIF (Single, dt=0.01)	11.0 ± 0.0	0.054 ± 0.001	6.0	6.9	30.0	11.5
+LIF (Single, Optimized dt=0.02)	11.0 ± 0.0	0.027 ± 0.001	6.0	23.1	30.0	23.7
+LIF Network (2%)	11.8 ± 1.2	1.555 ± 0.045	6.0	6.9	30.0	11.3
+LIF Network (Sparsified, 1.4%)	11.2 ± 0.4	1.591 ± 0.125	6.0	6.8	30.0	11.7
+LIF Network (Scaled, 2%)	12.0 ± 0.2	2.734 ± 0.056	6.0	6.6	30.0	11.5
+LIF Network (Scaled Sparsified, 1.4%)	11.5 ± 0.1	2.806 ± 0.103	6.0	7.5	30.0	11.9
+Hybrid Network (2%)	9.4 ± 0.8	5.899 ± 0.155	6.0	6.7	30.0	11.4
