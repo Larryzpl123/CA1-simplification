@@ -44,8 +44,10 @@ peak frequency indicate whether a genuine rhythm is present.
 
 If you use this code, please cite the preprint:
 
-> Zhong, P. (2026). Simplification Strategies for Biologically Constrained
-> Hippocampal CA1 Microcircuit Models. bioRxiv. https://doi.org/XXXXX
+> Zhong, P. (2026). *Simplification Strategies for Biologically Constrained
+> Hippocampal CA1 Microcircuit Models: How Far Reduction Preserves Firing and
+> Driven Theta but Not Emergent Gamma* (v1.0). Zenodo.
+> https://doi.org/10.5281/zenodo.21272959
 
 Archived code (this repository): https://doi.org/10.5281/zenodo.21265446
 
