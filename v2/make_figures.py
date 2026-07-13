@@ -17,6 +17,7 @@ to the last digit on two machines with different Python, numpy and hardware.
 Output: figure1..figure4 as .pdf (vector, for the manuscript) and .png (preview).
 """
 
+import os
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -62,11 +63,23 @@ def panel(ax, letter):
             fontweight="bold", va="bottom", ha="left")
 
 
+FIGDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "figures")
+
+
 def save(fig, name):
+    """Write to ../figures/, the ONE place figures live.
+
+    This used to write into the working directory, and the figures were then
+    copied by hand into ../figures/. So there were two copies, and after the
+    figures were redrawn only one of them was updated: the repository shipped a
+    v2/ directory whose figures were four revisions behind the figures/ directory
+    beside it, and nothing said so. A second copy of anything is a copy that goes
+    stale silently, which is the subject of this paper. There is now one copy."""
+    os.makedirs(FIGDIR, exist_ok=True)
     for ext in ("pdf", "png"):
-        fig.savefig(f"{name}.{ext}")
+        fig.savefig(os.path.join(FIGDIR, f"{name}.{ext}"))
     plt.close(fig)
-    print(f"  wrote {name}.pdf / .png")
+    print(f"  wrote ../figures/{name}.pdf / .png")
 
 
 # =============================================================================
@@ -82,30 +95,32 @@ def figure1():
         vals.append(prominence(f, P, A.GAMMA)[0])
     v = np.array(vals)
 
-    fig, ax = plt.subplots(figsize=(5.2, 3.0))
-    ax.hist(v, bins=28, color=LG, edgecolor=K, linewidth=0.6)
-    ax.axvline(0, color=K, lw=1.2, ls="-")
-    ax.annotate("what an unbiased\nstatistic would give", xy=(0, 0),
-                xytext=(0.6, 18), fontsize=7.5, ha="left", color=K,
-                arrowprops=dict(arrowstyle="->", lw=0.7, color=K))
-    ymax = ax.get_ylim()[1]
-    ax.set_ylim(0, ymax * 1.30)          # headroom so nothing sits on the data
+    fig, ax = plt.subplots(figsize=(6.0, 3.2))
+    fig.subplots_adjust(top=0.74)
+    ax.hist(v, bins=28, color=LG, edgecolor=K, linewidth=0.6,
+            label="200 datasets with NO rhythm")
+
+    # Every marker goes in the legend. NOT ONE inline annotation.
+    # The previous version put four text labels inside the axes and all four
+    # collided -- with each other, with the dotted lines, and with the bars.
+    # Inline annotation on a crowded axis is a judgement call made once per label;
+    # a legend is a rule applied to all of them.
     p95 = np.percentile(v, 95)
-    ax.axvline(p95, color=K, lw=1.0, ls="--")
-    ax.annotate(f"95th pct {p95:.2f} dB", xy=(p95, ymax * 1.02),
-                xytext=(p95 + 1.5, ymax * 1.20), fontsize=7.5, ha="left", va="center",
-                arrowprops=dict(arrowstyle="->", lw=0.7, color=K))
+    ax.axvline(0, color=K, lw=1.4, ls="-",
+               label="0 dB: what an unbiased statistic would give")
+    ax.axvline(p95, color=K, lw=1.1, ls="--",
+               label=f"95th percentile of the null: {p95:.2f} dB")
+    ax.axvline(6.9, color=G, lw=1.1, ls=":",
+               label="v1 reported theta at 6.6–7.5 dB")
+    ax.axvline(11.5, color=G, lw=1.1, ls="-.",
+               label="v1 reported gamma at 11.3–11.9 dB")
 
-    # where v1's reported values fall — labels staggered so they never touch a line
-    for val, lab, yf in [(6.9, "v1 theta 6.6–7.5 dB", 0.86),
-                         (11.5, "v1 gamma 11.3–11.9 dB", 0.70)]:
-        ax.axvline(val, color=K, lw=1.0, ls=":")
-        ax.annotate(lab, xy=(val, ymax * yf), xytext=(val - 0.35, ymax * yf),
-                    fontsize=7.5, ha="right", va="center")
-
-    ax.set_xlabel("peak prominence (dB) — 200 datasets containing NO rhythm")
+    ax.set_xlabel("peak prominence (dB)")
     ax.set_ylabel("count")
-    ax.set_xlim(-0.5, 13.5)
+    ax.set_xlim(-0.6, 13.5)
+    ax.legend(frameon=False, loc="lower left", bbox_to_anchor=(0, 1.02),
+              ncol=1, fontsize=7.2, handlelength=2.2, borderaxespad=0,
+              labelspacing=0.35)
     save(fig, "figure1_null_of_statistic")
     return v
 
@@ -147,7 +162,9 @@ def figure2():
     a2.bar(x + w/2, notch_fp, w, color="white", edgecolor=K, lw=0.6, hatch="///",
            label="comb-notched + null")
     a2.axhline(5, color=K, lw=0.9, ls=":")
-    a2.text(len(jit) - 0.45, 9, "α = 5%", fontsize=7.5, ha="right", va="bottom")
+    # x = len(jit)-0.45 put this INSIDE the rightmost bar, where it was invisible.
+    # There is no free space among the bars, so it goes in the left margin.
+    a2.text(-0.5, 5, "α = 5%", fontsize=7.5, ha="left", va="bottom")
     a2.set_xticks(x); a2.set_xticklabels([f"{j:.0f}" for j in jit])
     a2.set_xlabel("theta phase-locking jitter σ (ms)")
     a2.set_ylabel("datasets called SIGNIFICANT (%)")
@@ -247,6 +264,12 @@ def figure4():
     a1.set_ylim(28, 68)
 
     # --- right: PERIOD. This is the prediction, and the test. ---
+    # Panel B originally carried a legend at LOWER RIGHT, while every other panel
+    # in the paper has it above. That is the same "place it wherever it fits"
+    # non-rule that collided with the data three times in the first draft, and I
+    # had already written the rule down before breaking it here.
+    # The slope, R^2 and p are in the caption, where a reader looks for them.
+    # They do not need to be printed twice.
     for f_, lab, c, mk, ls in [
         (base_f, "80 + 20 neurons", G, "s", "--"),
         (scal_f, "320 + 80 neurons", K, "o", "-"),
@@ -256,25 +279,20 @@ def figure4():
         a2.plot(tau, T, mk, color=c, ms=5.5, mfc=("white" if c == G else c),
                 mec=c, mew=1.2)
         xx = np.linspace(0, 26, 50)
-        a2.plot(xx, reg.intercept + reg.slope * xx, ls, color=c, lw=1.4,
-                label=(f"{lab}\n"
-                       f"slope {reg.slope:+.3f} ± {reg.stderr:.3f}, "
-                       f"$R^2$={reg.rvalue**2:.2f}, p={reg.pvalue:.4f}"))
+        a2.plot(xx, reg.intercept + reg.slope * xx, ls, color=c, lw=1.4)
         if c == K:
             a2.plot([0], [reg.intercept], "o", mfc="white", mec=K, mew=1.6, ms=7,
                     zorder=5, clip_on=False)
             a2.annotate(f"intercept {reg.intercept:.1f} ms\n= fixed loop delay",
-                        xy=(0, reg.intercept), xytext=(1.2, 33.0), fontsize=7,
+                        xy=(0, reg.intercept), xytext=(2.0, 32.0), fontsize=7,
                         ha="left", va="top",
                         arrowprops=dict(arrowstyle="->", lw=0.8, color=K))
 
     a2.set_xlabel(r"$\tau_{\mathrm{GABA}}$ (ms)")
     a2.set_ylabel("cycle period (ms)")
     panel(a2, "B")
-    a2.legend(frameon=False, loc="lower right", fontsize=6.6,
-              handlelength=1.6, labelspacing=0.8, borderaxespad=0.3)
     a2.set_xlim(-0.5, 26)
-    a2.set_ylim(14, 39)
+    a2.set_ylim(14, 36)
 
     save(fig, "figure4_ping_scaling")
 

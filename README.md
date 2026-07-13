@@ -52,8 +52,9 @@ In this study, four screens and a comb notch left a significant peak standing in
 
 ```bash
 cd v2
-pip install brian2 numpy scipy matplotlib
-bash run_all.sh          # ~1.5–2 h total
+pip install -r ../requirements.txt           # floors — to run it
+pip install -r ../requirements-frozen.txt    # exact pins — to reproduce the logged numbers
+bash run_all.sh                              # ~1.5–2 h total
 ```
 
 `run_all.sh` **refuses to run** if the source hashes do not match. That gate is not ceremony. Two machines once produced *"gamma 8.51 dB, verdict GAMMA"* and *"gamma 3.17 dB, verdict no gamma"* for what was believed to be the same experiment, because they were executing different files, and nothing in the output said so. With the gate in place, two machines with different Python (3.13 / 3.12), numpy (2.5 / 2.2) and hardware reproduced every table **to the last digit**.
@@ -66,7 +67,7 @@ Raw logs from both machines are in `results/`.
 | `v2/artifact_demo.py` | every artifact, on synthetic spike trains, **with no network at all** | ~4 min |
 | `v2/ca1_v2.py` | the corrected CA1 microcircuit | ~15–25 min |
 | `v2/ping_scaling_test.py` | **the pre-registered PING test** — the only check that confirms | ~50–90 min |
-| `v2/make_figures.py` | the four figures | ~1 min |
+| `v2/make_figures.py` | the four figures, written to `figures/` | ~1 min |
 
 ---
 
@@ -108,7 +109,9 @@ It was ten uncoupled neurons sharing a 6 Hz drive. The sparsification arm remove
 v2/          the corrected code. Start here.
 v1/          v1 source, unmodified. Kept so the corrigendum can be checked.
 results/     raw run logs from both machines. The reproducibility claim lives here.
-figures/     the four figures (pdf + png), regenerable by v2/make_figures.py
+figures/     the four figures (pdf + png). The ONLY copy. v2/make_figures.py
+             writes here and nowhere else -- see RELEASE_NOTES_v2.1.md for why
+             that sentence had to be written down.
 ```
 
 **The manuscript is not in this repository.** It lives on Zenodo, where it has a
