@@ -1,0 +1,35 @@
+# The EXACT versions that produced the numbers in results/.
+#
+# Two machines ran this code with different Python and different numpy and got
+# tables identical to the last digit, including the pre-registered PING
+# regression (slope +0.760 +/- 0.113, R^2 = 0.884, p = 0.0005). The version
+# banner printed at the top of every run records what was actually loaded, and
+# those banners are in the logs.
+#
+#   machine 1 (Larry) : Python 3.13.12 | brian2 2.10.1 | numpy 2.5.1 | scipy 1.18.0
+#   machine 2 (Harry) : Python 3.12.1  | brian2 2.10.1 | numpy 2.2.4 | scipy 1.18.0
+#
+# The two numpy versions differ, and the results did not. That is a stronger
+# statement than pinning would have given, and it is only checkable because the
+# runs printed their own versions rather than assuming them.
+#
+# If you install from this file and get different numbers, that is a finding,
+# and I would like to hear about it.
+
+brian2==2.10.1
+numpy==2.5.1          # machine 2 ran 2.2.4 and got identical results
+scipy==1.18.0
+
+# matplotlib affects only the appearance of the figures, never a reported number.
+# This is the version that actually produced the figures in figures/, read off
+# the machine that produced them.
+#
+# It was very nearly not. An earlier draft of this file guessed "3.10.0", which
+# is wrong by a patch release and looked exactly like the three measured lines
+# above -- in a repository whose entire subject is numbers that are reported
+# without being measured. The guess was caught only because someone was asked to
+# run `import matplotlib; print(matplotlib.__version__)` and did.
+#
+# make_figures.py now prints its own version banner, so this will not have to be
+# guessed again. Every script in v2/ reports what it actually loaded.
+matplotlib==3.10.5

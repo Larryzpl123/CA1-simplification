@@ -124,6 +124,25 @@ def _fingerprint():
     return out
 
 
+def _versions():
+    """Record what was ACTUALLY loaded, not what we assume is installed.
+
+    matplotlib was originally left out of this banner, so no log recorded it,
+    so its version had to be guessed when the frozen requirements were written.
+    A guess in a pinned-version file is indistinguishable from a measurement.
+    Everything the code can import, it now reports."""
+    import importlib
+    out = {}
+    for mod in ("brian2", "numpy", "scipy", "matplotlib"):
+        try:
+            out[mod] = importlib.import_module(mod).__version__
+        except Exception:
+            out[mod] = "not installed"
+    import sys as _s
+    out["python"] = _s.version.split()[0]
+    return out
+
+
 def print_version_banner(extra=None):
     fp = _fingerprint()
     print("=" * 78)
@@ -131,6 +150,9 @@ def print_version_banner(extra=None):
     print("=" * 78)
     for k, v in fp.items():
         print(f"  {k:<22} sha256[:12] = {v}")
+    print("  " + "-" * 74)
+    for k, v in _versions().items():
+        print(f"  {k:<22} = {v}")
     if extra:
         for k, v in extra.items():
             print(f"  {k:<22} = {v}")

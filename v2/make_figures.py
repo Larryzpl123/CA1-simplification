@@ -25,7 +25,8 @@ from scipy import stats
 
 import sys
 sys.path.insert(0, ".")
-from spectral_null import (pop_rate, psd, prominence, prominence_notched, DT_S)
+from spectral_null import (pop_rate, psd, prominence, prominence_notched, DT_S,
+                           print_version_banner)
 import artifact_demo as A
 
 # ---- house style: grayscale, no chartjunk -----------------------------------
@@ -286,6 +287,13 @@ def figure4():
 
 
 if __name__ == "__main__":
+    # This script was the ONLY one that never printed its versions, because it is
+    # not part of run_all.sh's battery. So no log recorded matplotlib, so when the
+    # frozen requirements were written its version had to be guessed -- in a
+    # repository whose whole subject is not reporting unmeasured numbers.
+    # Every script prints what it loaded now. No exceptions.
+    print_version_banner()
+    print()
     print("Building figures. Figs 1 and 3 are recomputed; 2 and 4 are the logged runs.\n")
     figure1()
     figure2()

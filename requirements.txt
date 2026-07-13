@@ -1,3 +1,23 @@
+# Runtime floors. These make the code INSTALL and RUN.
+# They do NOT pin the reproducibility claim -- see requirements-frozen.txt.
+#
+# WHY BOTH FILES EXIST
+# --------------------
+# This paper claims that two machines reproduced every table to the last digit.
+# A ">=" floor cannot support that claim: it is a LOWER bound, so it permits any
+# future version. Someone installing from this file in 2028 may get numpy 3.x,
+# get different numbers, and their requirements.txt will tell them everything is
+# fine. A file that says "fine" while the results have changed is exactly the
+# failure this paper is about.
+#
+# So: install from requirements.txt to run the code.
+#     install from requirements-frozen.txt to reproduce the LOGGED NUMBERS.
+
+brian2>=2.7          # the simulator. v1 did not need this: it hand-rolled forward Euler.
 numpy>=1.26
-scipy>=1.11
-matplotlib>=3.7
+scipy>=1.11          # scipy.signal.welch, scipy.stats.linregress, scipy.ndimage
+matplotlib>=3.7      # figures only
+
+# Optional. Only fix_tables.py needs it, and that script builds the manuscript,
+# which is not in this repository (it is on Zenodo). Nothing scientific uses it.
+# python-docx>=1.1
