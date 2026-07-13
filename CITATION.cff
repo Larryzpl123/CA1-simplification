@@ -1,0 +1,42 @@
+cff-version: 1.2.0
+message: "If you use this software or the results in it, please cite the v2 preprint."
+title: "Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit"
+authors:
+  - family-names: Zhong
+    given-names: Peilin
+    alias: Larry
+    affiliation: "Shady Side Academy, Pittsburgh, PA, USA"
+    email: 27zhongp@shadysideacademy.org
+version: "2.0"
+date-released: 2026-07-13
+license: MIT
+repository-code: "https://github.com/Larryzpl123/CA1-simplification"
+abstract: >-
+  Reduced spiking-network models of hippocampal CA1 are validated by asking
+  whether they preserve theta and gamma, using spectral peak prominence. In
+  these models theta is imposed as a drive. This work shows that combination
+  makes the criterion unusable: the drive's harmonic comb both creates false
+  gamma (100% false-positive rate against a surrogate null at tight phase
+  locking) and MASKS real gamma. Once the comb is excised from the spectrum,
+  emergent PING gamma is recovered in a 320-neuron network and confirmed by a
+  pre-registered mechanistic test (period = 16.8 + 0.760*tau_GABA ms;
+  p = 0.0005). It is absent at 80 neurons. Version 1 of this work reached the
+  opposite conclusion and is corrected here.
+keywords:
+  - computational neuroscience
+  - hippocampus
+  - CA1
+  - PING
+  - gamma oscillations
+  - spectral artifacts
+  - surrogate testing
+  - pre-registration
+  - reproducibility
+references:
+  - type: article
+    title: "Simplification Strategies for Biologically Constrained Hippocampal CA1 Microcircuit Models"
+    authors:
+      - family-names: Zhong
+        given-names: Peilin
+    doi: 10.5281/zenodo.21272959
+    notes: "Version 1. Its central conclusion is reversed by this work; retained so the corrigendum can be independently checked."
