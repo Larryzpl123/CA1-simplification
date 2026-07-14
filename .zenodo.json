@@ -16,16 +16,16 @@
       "scheme": "doi"
     },
     {
-      "identifier": "10.5281/zenodo.21272959",
+      "identifier": "10.5281/zenodo.21352530",
       "relation": "isSupplementTo",
       "scheme": "doi"
     }
   ],
   "keywords": [
     "computational neuroscience",
-    "hippocampus CA1",
+    "hippocampal CA1",
     "PING",
-    "gamma oscillations",
+    "neural oscillations",
     "spectral artifacts",
     "surrogate testing",
     "pre-registration",
