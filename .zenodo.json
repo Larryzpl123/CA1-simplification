@@ -1,15 +1,34 @@
 {
-  "title": "Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit (v2)",
+  "title": "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit\" (v2)",
   "upload_type": "software",
   "license": "MIT",
   "version": "2.2",
   "creators": [
-    {"name": "Zhong, Peilin", "affiliation": "Shady Side Academy, Pittsburgh, PA, USA"}
+    {
+      "name": "Zhong, Peilin",
+      "affiliation": "Shady Side Academy, Pittsburgh, PA, USA"
+    }
   ],
   "related_identifiers": [
-    {"identifier": "10.5281/zenodo.21272959", "relation": "isNewVersionOf", "scheme": "doi"},
-    {"identifier": "10.5281/zenodo.21273211", "relation": "isNewVersionOf", "scheme": "doi"}
+    {
+      "identifier": "10.5281/zenodo.21273211",
+      "relation": "isNewVersionOf",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.21272959",
+      "relation": "isSupplementTo",
+      "scheme": "doi"
+    }
   ],
-  "keywords": ["computational neuroscience", "hippocampus CA1", "PING", "gamma oscillations",
-               "spectral artifacts", "surrogate testing", "pre-registration", "reproducibility"]
+  "keywords": [
+    "computational neuroscience",
+    "hippocampus CA1",
+    "PING",
+    "gamma oscillations",
+    "spectral artifacts",
+    "surrogate testing",
+    "pre-registration",
+    "reproducibility"
+  ]
 }
