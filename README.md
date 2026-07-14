@@ -54,11 +54,13 @@ slope +0.760 ± 0.113, R² = 0.884, **p = 0.0005**, on a criterion fixed in adva
 
 ## The one idea worth taking away
 
-Nine checks are listed in §4 of the paper. **Eight of them can only reject.** They remove candidate explanations, and they remove a great deal: each artifact is caught by exactly one of them, and each artifact survives the check that catches the previous one.
+Nine checks are listed in §4 of the paper. **Eight of them can only reject.**
 
-**No amount of screening can turn a surviving peak into a rhythm.** Only the ninth can, and it is not a statistic. It is an experiment: perturb the mechanism you are naming, and see whether the peak responds the way that mechanism requires.
+And one of the nine is not a screen at all. Removing the comb changes *what the statistic reports*; the others take the peak the statistic reported and ask whether it can be dismissed. Those are different acts, and the table above shows that no quantity of the second kind substitutes for the first: with the comb still in the spectrum, every screen in this paper fires correctly and the genuine rhythm is rejected anyway.
 
-In this study, four screens and a comb notch left a significant peak standing in two conditions. The ninth check killed it in one and confirmed it in the other.
+**No amount of screening can turn a surviving peak into a rhythm either.** Only the ninth check can, and it is not a statistic. It is an experiment: perturb the mechanism you are naming, and see whether the peak responds the way that mechanism requires.
+
+In this study, a repaired statistic and four screens left a significant peak standing in two conditions. The ninth check killed it in one and confirmed it in the other.
 
 ---
 
@@ -121,8 +123,8 @@ It was ten uncoupled neurons sharing a 6 Hz drive. The sparsification arm remove
 
 | | DOI |
 |---|---|
-| **v2 preprint** | *(pending)* |
-| **v2 code** | *(pending)* |
+| **v2 preprint** | [10.5281/zenodo.21352530](https://doi.org/10.5281/zenodo.21352530) |
+| **v2 code** | [10.5281/zenodo.21351830](https://doi.org/10.5281/zenodo.21351830) · all versions: `10.5281/zenodo.21265445` |
 | v1 preprint | [10.5281/zenodo.21272959](https://doi.org/10.5281/zenodo.21272959) · all versions: `10.5281/zenodo.21272958` |
 | v1 code | [10.5281/zenodo.21273211](https://doi.org/10.5281/zenodo.21273211) · all versions: `10.5281/zenodo.21265445` |
 

@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this software or the results in it, please cite the v2 preprint."
-title: "Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit"
+title: "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms\" (v2)"
 authors:
   - family-names: Zhong
     given-names: Peilin
@@ -24,10 +24,9 @@ abstract: >-
   opposite conclusion and is corrected here.
 keywords:
   - computational neuroscience
-  - hippocampus
-  - CA1
+  - hippocampal CA1
   - PING
-  - gamma oscillations
+  - neural oscillations
   - spectral artifacts
   - surrogate testing
   - pre-registration
@@ -40,3 +39,20 @@ references:
         given-names: Peilin
     doi: 10.5281/zenodo.21272959
     notes: "Version 1. Its central conclusion is reversed by this work; retained so the corrigendum can be independently checked."
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.21351830
+    description: "This release of the code."
+  - type: doi
+    value: 10.5281/zenodo.21265445
+    description: "All versions of the code."
+preferred-citation:
+  type: article
+  title: "Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit"
+  authors:
+    - family-names: Zhong
+      given-names: Peilin
+      affiliation: "Shady Side Academy, Pittsburgh, PA, USA"
+  year: 2026
+  doi: 10.5281/zenodo.21352530
+  url: "https://doi.org/10.5281/zenodo.21352530"
