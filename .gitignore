@@ -6,4 +6,7 @@ ref*.docx
 *.docx
 *.pdf
 !figures/*.pdf
+# run_all.sh writes a log next to itself; the copy that is archived is the one
+# tee-d into results/. Committing both means two copies, and one of them goes
+# stale.
 v2/results_*.log
