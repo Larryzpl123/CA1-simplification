@@ -119,6 +119,21 @@ It was ten uncoupled neurons sharing a 6 Hz drive. The sparsification arm remove
 
 ---
 
+## Versioning — the paper and this code are numbered separately
+
+The two numbers collide, so read this once:
+
+| | numbering | meaning |
+|---|---|---|
+| **the paper** | Version 1, Version 2 | which *paper* |
+| **this code** | v1.0, v1.1, **v2.0, v2.1, v2.2** | which *release of the code* for that paper |
+
+**There is no paper v2.1 and no paper v2.2.** Releases v2.0, v2.1 and v2.2 are three releases of the code written for Version **2** of the paper; the first two accompanied earlier drafts of it and are superseded. The paper cites v2.2, which is the snapshot that produced its figures and every number in it.
+
+The Zenodo record for the code and the Zenodo record for the paper are separate records with separate DOIs, and both show a field called "Version 2.0". They do not mean the same thing.
+
+---
+
 ## Citing
 
 | | DOI |
