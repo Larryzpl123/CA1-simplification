@@ -20,16 +20,6 @@ brian2==2.10.1
 numpy==2.5.1          # machine 2 ran 2.2.4 and got identical results
 scipy==1.18.0
 
-# matplotlib affects only the appearance of the figures, never a reported number.
-# This is the version that actually produced the figures in figures/, read off
-# the machine that produced them.
-#
-# It was very nearly not. An earlier draft of this file guessed "3.10.0", which
-# is wrong by a patch release and looked exactly like the three measured lines
-# above -- in a repository whose entire subject is numbers that are reported
-# without being measured. The guess was caught only because someone was asked to
-# run `import matplotlib; print(matplotlib.__version__)` and did.
-#
-# make_figures.py now prints its own version banner, so this will not have to be
-# guessed again. Every script in v2/ reports what it actually loaded.
-matplotlib==3.10.5
+# matplotlib affects the appearance of the figures only, never a reported number.
+# Read off the machine that draws them.
+matplotlib==3.11.0

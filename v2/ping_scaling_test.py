@@ -39,9 +39,11 @@ So: sweep tau_GABA over a wide range and watch the peak.
 
 THE TEST STATISTIC -- AND A THRESHOLD I GOT WRONG
 -------------------------------------------------
-The first version of this file asked whether the peak FREQUENCY changed by more
-than 2x across the tau sweep, and rejected PING if it did not. That threshold had
-no theoretical basis, and it was wrong.
+The criterion is on the PERIOD, not the frequency. PING predicts
+    T_cycle = fixed_delay + k * tau_GABA
+which is affine in tau, so a 12-fold change in tau moves the FREQUENCY only about
+2-fold. A criterion that thresholds on frequency change therefore rejects a
+network that is obeying the theory.
 
 PING does not predict f = 1/(2*tau_GABA). The cycle is: E fires -> recruits I ->
 I inhibits E -> E recovers when inhibition decays. Only the LAST step scales with

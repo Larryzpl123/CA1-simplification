@@ -18,6 +18,5 @@ numpy>=1.26
 scipy>=1.11          # scipy.signal.welch, scipy.stats.linregress, scipy.ndimage
 matplotlib>=3.7      # figures only
 
-# Optional. Only fix_tables.py needs it, and that script builds the manuscript,
-# which is not in this repository (it is on Zenodo). Nothing scientific uses it.
-# python-docx>=1.1
+# Nothing else is needed. The manuscript is not built from this repository; it
+# lives on Zenodo, and the tooling that builds it lives with it.

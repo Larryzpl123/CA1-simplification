@@ -28,6 +28,20 @@ Two things, and they are inseparable.
 
 The last row is the important one. The comb does not only create false positives. **It masks real rhythms.** The statistic's output is nearly uncorrelated with the gamma content it claims to measure.
 
+**And no screen repairs this.** The obvious response is to keep the statistic and add more checks. Run the raw statistic followed by *every* screen in the paper, on ground truth:
+
+```
+                          raw + 4 screens        notched + 4 screens
+  no rhythm               61.2 Hz  rejected      61.2 Hz  rejected
+  theta-locked, no gamma  30.0 Hz  rejected      33.6 Hz  rejected
+  GROUND-TRUTH 40 Hz      30.0 Hz  REJECTED  X   40.0 Hz  found
+  GROUND-TRUTH 55 Hz      30.0 Hz  REJECTED  X   55.1 Hz  found
+```
+
+It rejects the genuine rhythms. And every screen is *correct* in doing so: the peak it was handed really is significant, really is at a band edge, and really is the drive's fifth harmonic. All three verdicts are true. None of them is about the rhythm, because the rhythm was never the peak.
+
+A screen can only reject a peak the statistic has already found.
+
 **2. Once the analysis is repaired, emergent gamma is there.** Excise the drive's harmonic comb before taking the maximum. Then, in a network with an excitatory–inhibitory loop that actually exists:
 
 $$T_{\text{cycle}} = 16.8 + 0.760\,\tau_{\text{GABA}} \quad \text{(ms)}$$
@@ -64,10 +78,21 @@ Raw logs from both machines are in `results/`.
 | file | what it does | runtime |
 |---|---|---|
 | `v2/spectral_null.py` | the statistic, the comb notch, the surrogates, and their validation (false-positive rate, power) | ~2 min |
-| `v2/artifact_demo.py` | every artifact, on synthetic spike trains, **with no network at all** | ~4 min |
-| `v2/ca1_v2.py` | the corrected CA1 microcircuit | ~15–25 min |
-| `v2/ping_scaling_test.py` | **the pre-registered PING test** — the only check that confirms | ~50–90 min |
-| `v2/make_figures.py` | the four figures, written to `figures/` | ~1 min |
+| `v2/v1_diagnosis.py` | the four measurements the corrigendum rests on, computed from v1's own source | ~1 min |
+| `v2/artifact_demo.py` | every artifact, on synthetic spike trains, **with no network at all** | ~9 min |
+| `v2/ca1_v2.py` | the corrected CA1 microcircuit, and the positive control | ~17 min |
+| `v2/ping_scaling_test.py` | **the pre-registered PING test** — the only check that confirms | ~35 min |
+| `v2/make_figures.py` | the five figures, written to `figures/` | ~6 min |
+
+And three tools that check the work rather than doing it:
+
+| file | what it does |
+|---|---|
+| `v2/audit_manuscript.py` | extracts every number in the manuscript, looks for it in the logs, **exits non-zero on any it cannot find**. Currently: 274 claims, 254 in a log, 20 derived, 0 unsupported. |
+| `v2/compare_runs.py` | compares two runs on their numbers and verdicts, ignoring prose and timings. So a comment change does not require re-running an hour of simulation on a second machine to certify it. |
+| `v2/semantic_hash.py` | fingerprints the AST rather than the source bytes: two files with the same semantic hash compute the same thing. |
+
+`audit_manuscript.py` is the one that matters. It found two false claims in the paper — see the v2.2 release notes — and neither was found by reading.
 
 ---
 

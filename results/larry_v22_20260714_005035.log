@@ -1,0 +1,566 @@
+==============================================================================
+HASH GATE
+==============================================================================
+  spectral_null.py       5552f0231b52  OK
+  ca1_v2.py              5cae329510d1  OK
+  artifact_demo.py       b336dcdf0c56  OK
+  ping_scaling_test.py   346c8a9d255b  OK
+  v1_diagnosis.py        3217d2e52fb4  OK
+
+  Python 3.13.12
+  brian2 2.10.1 | numpy 2.5.1 | scipy 1.18.0
+
+
+##############################################################################
+## spectral_null.py
+## validate the null test itself: false-positive rate and power
+##############################################################################
+==============================================================================
+VALIDATION OF THE NULL TEST
+==============================================================================
+A test is validated by its ERROR RATES OVER MANY DATASETS, never by one
+draw. At alpha = 0.05 a correct test rejects a true null 5% of the time;
+seeing that happen once is not a bug, it is the definition. (An earlier
+version of this file declared itself broken on exactly such a draw.)
+
+FALSE-POSITIVE RATE — 40 independent datasets with NO gamma
+  (constant-rate Poisson + 6 Hz theta; gamma content zero by construction)
+    jitter  :  2/40 rejected =  5.0%  (nominal 5%)   raw prominence 5.63 dB vs null 5.63 dB
+    poisson :  2/40 rejected =  5.0%  (nominal 5%)   raw prominence 5.63 dB vs null 5.56 dB
+
+POWER — 20 datasets with a genuine 40 Hz rhythm
+    jitter  : 20/20 detected = 100% power
+    poisson : 20/20 detected = 100% power
+
+==============================================================================
+WHY THE TEST IS NEEDED — the null of the raw statistic
+==============================================================================
+  200 datasets with NO rhythm of any kind. An unbiased statistic
+  would return ~0 dB. Peak prominence returns:
+      mean 5.67 dB | sd 0.62 | 95th 6.75 | max 8.14
+  => raw prominence below ~6.8 dB is not evidence of anything.
+
+  CAUTION: passing this null is necessary and NOT sufficient. Harmonics of
+  an imposed drive are non-random fast structure, so the surrogate calls
+  them significant. Use test_rhythm(..., drive_hz=...) and read is_rhythm,
+  not significant. See artifact_demo.py.
+==============================================================================
+   [spectral_null.py finished in 74s, exit 0]
+
+##############################################################################
+## v1_diagnosis.py
+## C1, C2 and the two Methods numbers, made executable (~2 min)
+##############################################################################
+==============================================================================
+VERSION FINGERPRINT  —  these must match on every machine
+==============================================================================
+  spectral_null.py       sha256[:12] = 5552f0231b52
+  ca1_v2.py              sha256[:12] = 5cae329510d1
+  artifact_demo.py       sha256[:12] = b336dcdf0c56
+  ping_scaling_test.py   sha256[:12] = 346c8a9d255b
+  v1_diagnosis.py        sha256[:12] = 3217d2e52fb4
+  --------------------------------------------------------------------------
+  brian2                 = 2.10.1
+  numpy                  = 2.5.1
+  scipy                  = 1.18.0
+  matplotlib             = not installed
+  python                 = 3.13.12
+==============================================================================
+
+================================================================================
+C1  v1's REALISED CONNECTIVITY, redrawn from v1's own source and seeds
+================================================================================
+  N_exc = 8, N_inh = 2, one p_conn = 0.02 for EVERY pathway.
+  Expected I->E synapses: 2 x 8 x 0.02 = 0.32
+
+    seed   I->E synapses   TOTAL synapses
+  ----------------------------------------
+     100               0                1
+     101               0                0
+     102               0                0
+     103               0                3
+     104               0                0
+
+  I->E across seeds : [0, 0, 0, 0, 0]
+  TOTAL across seeds: [1, 0, 0, 3, 0]
+
+  => Not one inhibitory-to-excitatory synapse exists on ANY seed, and
+     3 of 5 seeds produced a network with zero synapses of any kind.
+     v1's 'microcircuit' was ten uncoupled neurons sharing a 6 Hz drive.
+     The sparsification arm removed connections from a network that had
+     none. The absence of emergent gamma was uninformative, in the
+     DETAILED configuration exactly as much as in the reduced ones.
+
+================================================================================
+C2  RHEOBASE OF THE HH INTERNEURON  (v1 drove it at I = 1.0)
+================================================================================
+  1000 ms per current. 'sustained' discards the first 200 ms, in which
+  the cell fires one onset spike at EVERY current as it depolarises from
+  -65 mV to the -54.4 mV leak reversal.
+
+   I (uA/cm^2)   total  sustained   note
+  ------------------------------------------------------------
+           1.0       1          0   <- v1 drove the HYBRID interneurons here
+           3.0       1          0   
+           5.0       1          0   
+           6.0       2          0   
+           7.0      58         46   
+          10.0      68         54   <- v1's own single-neuron block used this
+
+  => Rheobase is between 6 and 7 uA/cm^2. At I = 1.0 the neuron
+     emits 0 sustained spikes. The hybrid arm of v1 -- whose stated
+     purpose was to test whether detailed inhibitory kinetics recover
+     gamma -- contained interneurons that did not fire.
+
+     v1 integrated this model with a hand-written forward Euler step;
+     this is Brian2's exponential Euler at dt = 0.01 ms. Spike COUNTS
+     above rheobase therefore differ by a spike or two between the two.
+     The rheobase, and the silence at I = 1.0, do not.
+
+================================================================================
+M1  WHY THE PHASE-MODULATION GAMMA GENERATOR WAS DISCARDED
+================================================================================
+  Injecting gamma by displacing spike times with a sinusoid does not add
+  a rhythm. It MULTIPLIES the 6 Hz comb by the injected frequency, and
+  what appears is the intermodulation product, not the injection.
+
+   nominal injection   peak actually found
+  --------------------------------------------
+               40 Hz               36.0 Hz  <- NOT the injected frequency
+               55 Hz               48.0 Hz  <- NOT the injected frequency
+
+  A positive control that does not contain the rhythm it claims to
+  contain is worthless. It was replaced by ground_truth(), which is the
+  UNION of two INDEPENDENT volley trains and therefore contains exactly
+  the frequency it says it does.
+
+================================================================================
+M2  THE HARMONIC SCREEN'S COST DEPENDS ON THE FREQUENCY RESOLUTION
+================================================================================
+  The screen rejects a tolerance of +/-1.5 bins around every multiple of
+  the drive, so it destroys ~3*df/f_drive of the band. At coarse
+  resolution it destroys most of it -- INCLUDING any real rhythm.
+
+    T (s)   nperseg   df (Hz)   band blocked   verdict
+  --------------------------------------------------------------
+      2.5      2500     0.400            20%   *** DESTROYS THE BAND ***
+      3.0      3000     0.333            17%   *** DESTROYS THE BAND ***
+      5.0      5000     0.200            10%   *** DESTROYS THE BAND ***
+     10.0      8192     0.122             6%   usable
+     21.0      8192     0.122             6%   usable
+
+  => Requiring the blocked fraction to be at most 10% gives
+     df <= 0.1 * f_drive / 3 = 0.20 Hz, i.e. a Welch segment of
+     at least 5000 samples = 5.0 s. All results here use 21 s.
+
+================================================================================
+Every number in the corrigendum, and the two Methods numbers that
+justified discarding v1's positive control and v1's recording length,
+is produced above by code in this archive. Until this file existed they
+were carried in prose, and prose does not recompute itself when the code
+underneath it changes. That is not a stylistic complaint. It is the
+finding of this paper, applied to this paper.
+================================================================================
+   [v1_diagnosis.py finished in 4s, exit 0]
+
+##############################################################################
+## artifact_demo.py
+## the artifacts, on synthetic data with NO network at all
+##############################################################################
+====================================================================================
+E1  NULL OF THE PROMINENCE STATISTIC  (constant-rate Poisson; NO rhythm)
+====================================================================================
+  200 independent datasets containing NO rhythm whatsoever.
+  An unbiased statistic would return ~0 dB. It returns:
+      mean    5.62 dB
+      sd      0.61 dB
+      95th    6.63 dB
+      max     7.74 dB
+
+  => Any 'gamma prominence' below ~6.6 dB is not evidence.
+     v1 of this preprint reported theta prominence of 6.6-7.5 dB and
+     gamma prominence of 11.3-11.9 dB against an implicit null of 0 dB.
+        a reported  5.0 dB is exceeded by  88.0% of NO-rhythm data
+        a reported  6.9 dB is exceeded by   3.5% of NO-rhythm data
+        a reported  7.5 dB is exceeded by   1.0% of NO-rhythm data
+        a reported 11.5 dB is exceeded by   0.0% of NO-rhythm data
+
+  The null MOVES WITH THE ANALYSIS. Same data, same statistic, only
+  the Welch segment length changes:
+
+    nperseg   df (Hz)  bins in 30-80  null mean  null 95th
+  ----------------------------------------------------------
+       1024     0.977             51      1.48 dB     1.92 dB
+       2048     0.488            102      2.31 dB     2.88 dB
+       4096     0.244            204      3.60 dB     4.35 dB
+       8192     0.122            409      5.58 dB     6.63 dB
+
+  A prominence value is UNINTERPRETABLE unless the sampling rate,
+  segment length and fit range are reported alongside it.
+
+====================================================================================
+E2  THETA HARMONICS MASQUERADING AS GAMMA  (6 Hz drive; gamma depth = 0)
+====================================================================================
+  Spike trains contain a 6 Hz modulation and NOTHING ELSE.
+  Gamma-band content by construction: zero.
+
+   depth  sharp  prom dB   null p    f_pk   k x 6Hz   null says  3 screens say
+  ------------------------------------------------------------------------------
+     0.0      1     5.33    0.686    59.3   10x6=60        0% sig    0% rhythm
+     0.3      1     5.66    0.646    44.8    7x6=42       17% SIG   17% rhythm
+     0.6      1     5.34    0.669    41.0    7x6=42        0% sig    0% rhythm
+     0.9      1     5.76    0.377    47.9    8x6=48        0% sig    0% rhythm
+     0.9      3     5.49    0.574    65.2   11x6=66        0% sig    0% rhythm
+     0.9      6     5.53    0.537    65.1   11x6=66       17% SIG   17% rhythm
+     0.9     10     7.55    0.006    30.0    5x6=30       83% SIG    0% rhythm
+
+  => At theta depth 0.9, sharpness 10, spike trains with ZERO gamma
+     produce 7.6 dB of 'gamma prominence' and the SURROGATE NULL
+     calls them significant in 83% of datasets.
+     The harmonic screen rejects 100% of them.
+
+  NOTE, and it reverses a claim this file used to make: RATE MODULATION
+  ALONE IS ENOUGH, if the waveform is sharp enough. These populations
+  sample INDEPENDENTLY from a common rate. There is no synchrony here at
+  all, and the surrogate null still calls the harmonics significant.
+  Sharpening the drive concentrates its Fourier series into higher
+  harmonics, and those land in the gamma band. What the surrogate cannot
+  do is tell a harmonic from a rhythm, and no amount of independence in
+  the spiking rescues it.
+
+  THIS IS THE POINT: a surrogate null is NECESSARY AND NOT SUFFICIENT.
+  It asks 'is there non-random fast structure?'. Theta harmonics ARE
+  non-random fast structure. They are real. They are not a rhythm.
+
+====================================================================================
+E3  SCREENS CANNOT RESCUE A RHYTHM THE STATISTIC NEVER FOUND
+====================================================================================
+  case                        truth |  RAW: peak    verdict |  NOTCHED: peak    verdict
+  --------------------------------------------------------------------------------
+  no rhythm at all            False |     61.2 Hz   rejected |         61.2 Hz   rejected
+  theta-locked, sigma=5 ms    False |     30.0 Hz   rejected |         33.6 Hz   rejected
+  GROUND-TRUTH 40 Hz gamma     True |     30.0 Hz rejected X |         40.0 Hz     RHYTHM
+  GROUND-TRUTH 55 Hz gamma     True |     30.0 Hz rejected X |         55.1 Hz     RHYTHM
+
+  raw statistic + four screens : WRONG on 2 of 4 cases
+  notched statistic + screens  : WRONG on 0 of 4 cases
+
+  The raw pipeline REJECTS the genuine 40 and 55 Hz rhythms. Every screen
+  fires: significant, at a band edge, a harmonic of the drive. Each of
+  those verdicts is CORRECT about the peak it was handed -- the peak really
+  is at 30.0 Hz, and 30.0 Hz really is 5 x 6 Hz. The screens are not
+  malfunctioning. They are answering a question about the wrong peak.
+
+  A SCREEN CAN ONLY REJECT A PEAK THE STATISTIC HAS ALREADY FOUND. When the
+  statistic never finds the rhythm, no number of screens can recover it,
+  and adding more screens makes the pipeline more confident, not more
+  correct. The comb has to come out of the SPECTRUM, before the maximum is
+  taken. That is not a screen. That is a different statistic.
+
+====================================================================================
+E4  SYNCHRONY, NOT RATE, DEFEATS THE SURROGATE NULL   (gamma = 0 in every row)
+====================================================================================
+  6 datasets per row, N_surr = 400, T = 21 s.
+
+   sigma |  raw dB   raw p  raw pk  raw sig |  ntch dB  ntch p  ntch sig
+  ------------------------------------------------------------------------------
+    50 ms |    5.66   0.350   49.3       0% |     5.70   0.299       0%
+    30 ms |    5.84   0.378   35.8      17% |     5.86   0.327      17%
+    20 ms |    5.59   0.522   41.4       0% |     5.71   0.494       0%
+    12 ms |   12.28   0.002   30.0     100% |     6.38   0.218      17%
+     8 ms |   25.86   0.002   30.0     100% |     6.07   0.464       0%
+     5 ms |   32.98   0.002   30.0     100% |     5.98   0.564       0%
+     3 ms |   37.23   0.002   30.0     100% |     5.44   0.895       0%
+
+  A null distribution is NECESSARY AND NOT SUFFICIENT. The surrogate
+  asks whether there is non-random fast temporal structure. There is.
+  It is the harmonics of the drive. It is entirely real. It is not gamma.
+
+====================================================================================
+E5  THE PEAK IS A HARMONIC COMB, NOT A BAND-EDGE ARTIFACT
+====================================================================================
+  ONE tightly-locked, gamma-free train (sigma = 5 ms). Only the band moves.
+
+    analysis band |    peak  prominence | interpretation
+  ------------------------------------------------------------------
+      30-80 Hz    |   30.0      33.18 dB | = 5 x 6 Hz
+      32-80 Hz    |   36.0      30.97 dB | = 6 x 6 Hz
+      38-80 Hz    |   42.0      28.32 dB | = 7 x 6 Hz
+      44-80 Hz    |   48.0      25.21 dB | = 8 x 6 Hz
+      50-80 Hz    |   54.0      21.61 dB | = 9 x 6 Hz
+
+  The peak does not follow the band edge. Wherever the band is placed,
+  the maximum lands on a tooth of the comb.
+
+====================================================================================
+E6  THE COMB DOES NOT ONLY CREATE FALSE POSITIVES -- IT MASKS REAL RHYTHMS
+====================================================================================
+  Ground truth = a tight (sigma = 5 ms) 6 Hz volley train, PLUS, in three
+  of four cases, a genuine independent gamma volley train.
+
+          case |  raw dB  raw peak |  ntch dB  ntch peak | found?
+  ----------------------------------------------------------------------
+      no gamma |   32.97     30.0 Hz |     6.03      42.6 Hz | n/a (no rhythm exists)
+    real 40 Hz |   28.46     30.0 Hz |    28.91      40.0 Hz | FOUND   raw MISSED it
+    real 55 Hz |   28.53     30.0 Hz |    23.55      55.1 Hz | FOUND   raw MISSED it
+    real 68 Hz |   28.20     30.0 Hz |    22.21      68.0 Hz | FOUND   raw MISSED it
+
+  The raw peak lands at 30.0 Hz in all four cases. Whether a rhythm
+  exists, and at what frequency, changes its answer not at all.
+
+====================================================================================
+E7  VALIDATION OF THE REPAIR ON GROUND TRUTH
+====================================================================================
+  Comb-notched. N_surr = 500. 40 datasets per negative case,
+  20 per positive case. A test is validated by its error rate,
+  never by a single draw. Accept iff false positives <= 4/40
+  (binomial, alpha = 0.05) AND power = 100%.
+
+  case                       truth     prom       p     peak      errors  VERDICT
+  ------------------------------------------------------------------------------
+  no rhythm (sigma=25 ms)     none  5.61 dB   0.538  41.1 Hz     1/40 FP  correctly rejected
+  tight sigma=8, no gamma     none  6.49 dB   0.223  33.2 Hz     4/40 FP  correctly rejected
+  tight sigma=3, no gamma     none  5.52 dB   0.862  39.6 Hz     1/40 FP  correctly rejected
+  tight + real 40 Hz          40 Hz 29.07 dB   0.002  40.0 Hz     0/20 FN  correctly found
+  tight + real 55 Hz          55 Hz 23.91 dB   0.002  55.1 Hz     0/20 FN  correctly found
+  tight + real 68 Hz          68 Hz 22.68 dB   0.002  68.0 Hz     0/20 FN  correctly found
+
+  Six of six. The false-positive rate is at nominal alpha, including
+  in the worst case (3 ms locking, where the RAW statistic is wrong
+  100% of the time). Power is 100%, and every rhythm is recovered to
+  within 1 Hz of its true frequency.
+
+====================================================================================
+No network was simulated in this file. These are properties of the
+STATISTIC and of THETA-LOCKED SPIKING, not of any one implementation.
+====================================================================================
+   [artifact_demo.py finished in 498s, exit 0]
+
+##############################################################################
+## ca1_v2.py
+## the corrected CA1 microcircuit (~15-25 min)
+##############################################################################
+==============================================================================
+VERSION FINGERPRINT  —  these must match on every machine
+==============================================================================
+  spectral_null.py       sha256[:12] = 5552f0231b52
+  ca1_v2.py              sha256[:12] = 5cae329510d1
+  artifact_demo.py       sha256[:12] = b336dcdf0c56
+  ping_scaling_test.py   sha256[:12] = 346c8a9d255b
+  v1_diagnosis.py        sha256[:12] = 3217d2e52fb4
+  --------------------------------------------------------------------------
+  brian2                 = 2.10.1
+  numpy                  = 2.5.1
+  scipy                  = 1.18.0
+  matplotlib             = not installed
+  python                 = 3.13.12
+  rate binning           = 1 ms
+  nperseg                = 8192
+  freq resolution df     = 0.122 Hz
+  recording              = 21 s (minus 1 s transient)
+  comb notch             = ON (drive harmonics excised before max)
+  harmonic screen blocks = 6% of the gamma band
+  N_surr                 = 2000
+==============================================================================
+
+============================================================================================
+CA1 v2 — the corrected study
+============================================================================================
+per-type connectivity: p_ee=0.02 p_ei=0.2 p_ie=0.25 p_ii=0.2
+drives (separately named): pyr=190. pA | int_LIF=120. pA | int_HH=240. pA
+surrogates per test: 2000 (jitter) | network seeds: [100, 101, 102, 103, 104]
+
+============================================================================================
+POSITIVE CONTROL — calibration of W_IE by theta recovery
+============================================================================================
+  Sweep the inhibitory weight. Keep the range where the pipeline still
+  recovers the 6 Hz theta that IS IN THE INPUT. This never looks at gamma.
+
+     W_IE    rate_E    theta p   theta recovered in
+  ----------------------------------------------------
+     3 nS      9.5 Hz      0.000               100%
+     6 nS      6.0 Hz      0.000               100% (adopted)
+    10 nS      4.5 Hz      0.000               100%
+    20 nS      3.2 Hz      0.000               100%
+
+  Theta is recovered in 100% of seeds at 4 of 4 weights.
+  => The control PASSES: the pipeline can see a rhythm that is known to
+     be present, at every weight tested. It therefore has the power to
+     say something about a rhythm that might not be.
+
+     It does NOT discriminate among these weights, and no claim that it
+     does should be made. W_IE = 6 nS is adopted because it yields a
+     pyramidal rate of ~6 Hz, which is the physiological target. The
+     choice is made on the rate column, not on the theta column.
+
+--------------------------------------------------------------------------------------------
+PRE-FLIGHT (the two assertions v1 lacked)
+--------------------------------------------------------------------------------------------
+  LIF baseline
+    connectivity self-check:
+      E->E:    130 synapses | mean in-degree   1.62
+      E->I:    327 synapses | mean in-degree  16.35
+      I->E:    416 synapses | mean in-degree   5.20
+      I->I:     73 synapses | mean in-degree   3.65
+    firing self-check:
+      pyramidal:   6.20 Hz
+      interneuron:  32.25 Hz
+
+  Sparsified -30% (uncompensated)
+    connectivity self-check:
+      E->E:    130 synapses | mean in-degree   1.62
+      E->I:    327 synapses | mean in-degree  16.35
+      I->E:    291 synapses | mean in-degree   3.64
+      I->I:     73 synapses | mean in-degree   3.65
+    firing self-check:
+      pyramidal:   8.75 Hz
+      interneuron:  43.01 Hz
+
+  Sparsified -30% (drive-matched)
+    connectivity self-check:
+      E->E:    130 synapses | mean in-degree   1.62
+      E->I:    327 synapses | mean in-degree  16.35
+      I->E:    291 synapses | mean in-degree   3.64
+      I->I:     73 synapses | mean in-degree   3.65
+    firing self-check:
+      pyramidal:   7.36 Hz
+      interneuron:  37.73 Hz
+
+  Hybrid (HH interneurons)
+    connectivity self-check:
+      E->E:    130 synapses | mean in-degree   1.62
+      E->I:    327 synapses | mean in-degree  16.35
+      I->E:    416 synapses | mean in-degree   5.20
+      I->I:     73 synapses | mean in-degree   3.65
+    firing self-check:
+      pyramidal:   2.89 Hz
+      interneuron:  42.64 Hz
+
+  Scaled 4x (drive-matched)
+    connectivity self-check:
+      E->E:   2123 synapses | mean in-degree   6.63
+      E->I:   5161 synapses | mean in-degree  64.51
+      I->E:   6497 synapses | mean in-degree  20.30
+      I->I:   1210 synapses | mean in-degree  15.12
+    firing self-check:
+      pyramidal:   5.34 Hz
+      interneuron:  26.34 Hz
+
+--------------------------------------------------------------------------------------------
+RESULTS — rhythms tested against a surrogate null, NOT raw dB
+--------------------------------------------------------------------------------------------
+condition                    rate_E rate_I cost(s)  theta p  gamma p gamma dB null dB  verdict
+----------------------------------------------------------------------------------------------
+LIF baseline                    6.5   34.3    13.0    0.000    0.011     8.51    6.68  GAMMA | THETA
+Sparsified -30% (uncompensated)    8.8   43.2    13.0    0.000    0.073     7.64    6.67  no gamma | THETA
+Sparsified -30% (drive-matched)    7.4   37.8    13.0    0.000    0.133     7.55    6.65  no gamma | THETA
+Hybrid (HH interneurons)        3.0   42.2    31.0    0.000    0.103     7.45    6.54  no gamma | THETA
+Scaled 4x (drive-matched)       5.6   26.3    15.4    0.000    0.001     9.51    6.83  GAMMA | THETA
+
+============================================================================================
+READ THIS BEFORE WRITING ANYTHING
+============================================================================================
+  The null of the prominence statistic is ~6.7 dB.
+  Any 'prominence' at or below that number is NOT evidence of a rhythm —
+  it is the statistic measuring its own bias. v1 reported theta at 6.6-7.5 dB.
+
+  Gamma survives the null in at least one condition. Report the p, not the dB,
+  and check that its peak frequency scales with tau_GABA before calling it PING.
+============================================================================================
+   [ca1_v2.py finished in 928s, exit 0]
+
+##############################################################################
+## ping_scaling_test.py
+## PING scaling: period vs tau_GABA regression (~30-40 min)
+##############################################################################
+==============================================================================
+VERSION FINGERPRINT  —  these must match on every machine
+==============================================================================
+  spectral_null.py       sha256[:12] = 5552f0231b52
+  ca1_v2.py              sha256[:12] = 5cae329510d1
+  artifact_demo.py       sha256[:12] = b336dcdf0c56
+  ping_scaling_test.py   sha256[:12] = 346c8a9d255b
+  v1_diagnosis.py        sha256[:12] = 3217d2e52fb4
+  --------------------------------------------------------------------------
+  brian2                 = 2.10.1
+  numpy                  = 2.5.1
+  scipy                  = 1.18.0
+  matplotlib             = not installed
+  python                 = 3.13.12
+  freq resolution df     = 0.122 Hz
+  recording              = 21 s
+  comb notch             = ON
+  tau_GABA sweep         = [2, 3, 4, 6, 8, 12, 16, 24] ms
+  N_surr                 = 1000
+==============================================================================
+
+========================================================================================
+PING SCALING TEST — the check that is an experiment, not a statistic
+========================================================================================
+PING requires the peak frequency to fall roughly as 1/tau_GABA, because
+inhibitory decay sets the cycle period. A drive harmonic, a statistical
+fluctuation, and a resonance set by any other time constant will not move.
+
+----------------------------------------------------------------------------------------
+LIF baseline
+----------------------------------------------------------------------------------------
+   tau_GABA   rate_E   rate_I   gamma p    prom   null    PEAK   per-seed peaks
+        2ms      9.5     62.2     0.350    7.24   6.70    39.3   [37.8, 50.5, 39.3, 34.7, 55.9]
+        3ms      8.0     48.0     0.118    7.67   6.69    33.8   [33.4, 51.6, 33.8, 39.9, 32.0]
+        4ms      7.2     40.0     0.020    8.14   6.66    40.5   [36.7, 41.1, 40.5, 33.8, 55.5]
+        6ms      6.3     31.2     0.023    8.25   6.61    38.2   [33.4, 38.3, 38.2, 33.6, 44.8]
+        8ms      5.8     26.5     0.022    8.43   6.58    36.6   [32.5, 52.5, 43.2, 32.3, 36.6]
+       12ms      5.3     21.4     0.009    8.53   6.51    32.2   [31.1, 41.5, 35.3, 32.2, 31.2]
+       16ms      4.9     19.0     0.139    7.43   6.47    37.5   [33.1, 45.5, 38.0, 37.5, 35.4]
+       24ms      4.7     16.8     0.485    6.54   6.46    40.6   [33.3, 43.5, 50.7, 38.0, 40.6]
+
+  PING prediction:  period = fixed_delay + k * tau_GABA   (affine)
+  fitted:           period = 27.3 + -0.041 * tau_GABA   (ms)
+  slope = -0.041 +/- 0.123   R^2 = 0.018   p = 0.7482
+  PRE-REGISTERED CRITERION: slope > 0 AND p < 0.05. Nothing else.
+
+  => CRITERION NOT MET. NOT PING. Whatever this peak is, it is not the
+     excitatory-inhibitory loop oscillating, and no claim of emergent
+     gamma is warranted -- however many screens it passed.
+     Screens reject; only this test confirms.
+
+----------------------------------------------------------------------------------------
+Scaled 4x
+----------------------------------------------------------------------------------------
+   tau_GABA   rate_E   rate_I   gamma p    prom   null    PEAK   per-seed peaks
+        2ms      8.5     55.2     0.259    7.39   6.80    61.8   [53.3, 63.6, 61.8, 54.7, 78.5]
+        3ms      6.9     40.1     0.039    8.22   6.78    55.2   [47.2, 61.2, 55.2, 49.8, 60.8]
+        4ms      6.1     31.8     0.015    8.72   6.80    55.2   [55.9, 55.2, 62.0, 45.3, 45.2]
+        6ms      5.2     22.7     0.001    9.61   6.86    44.1   [44.1, 36.7, 41.5, 54.9, 46.9]
+        8ms      4.7     17.9     0.001   11.10   6.92    40.4   [39.9, 40.5, 40.4, 40.5, 38.6]
+       12ms      4.1     12.8     0.001   10.94   6.80    35.0   [38.0, 35.0, 30.6, 36.9, 33.3]
+       16ms      3.8     10.1     0.001   10.77   6.65    32.8   [30.8, 35.0, 33.1, 32.8, 31.6]
+       24ms      3.3      7.3     0.001    9.41   6.48    31.0   [30.8, 30.5, 31.0, 32.6, 33.6]
+
+  PING prediction:  period = fixed_delay + k * tau_GABA   (affine)
+  fitted:           period = 16.8 + 0.760 * tau_GABA   (ms)
+  slope = +0.760 +/- 0.113   R^2 = 0.884   p = 0.0005
+  PRE-REGISTERED CRITERION: slope > 0 AND p < 0.05. Nothing else.
+
+  => CRITERION MET. The cycle period lengthens with the inhibitory decay
+     constant, as PING requires. The peak is a network rhythm generated
+     by the E-I loop, and the 17 ms intercept is the fixed part of
+     the loop delay (AMPA, membrane, refractory) -- which is why the
+     FREQUENCY moves far less than tau does.
+
+========================================================================================
+Screens can only reject. This is the only check that can confirm — and it
+is the only one that requires re-running the model rather than re-analysing
+a spectrum. That is not an inconvenience. That is the point.
+========================================================================================
+   [ping_scaling_test.py finished in 1317s, exit 0]
+
+==============================================================================
+DONE. Everything above is in: results_20260714_005035.log
+
+Read these four lines before anything else:
+  1. spectral_null   -> false positives should be 0-3/40, power 20/20.
+  2. artifact_demo   -> E3: raw pipeline must MISS the real rhythm; notched must find it.
+  3. ca1_v2          -> theta p < 0.001 in ALL five conditions (positive control).
+  4. ping_scaling    -> does the peak move with tau_GABA? That is the paper.
+==============================================================================

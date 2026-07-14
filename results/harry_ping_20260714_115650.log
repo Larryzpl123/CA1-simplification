@@ -1,0 +1,108 @@
+==============================================================================
+HASH GATE
+==============================================================================
+  spectral_null.py       5552f0231b52  OK
+  ca1_v2.py              5cae329510d1  OK
+  artifact_demo.py       b336dcdf0c56  OK
+  ping_scaling_test.py   346c8a9d255b  OK
+  v1_diagnosis.py        3217d2e52fb4  OK
+
+  Python 3.12.1
+  brian2 2.10.1 | numpy 2.2.4 | scipy 1.18.0
+
+
+##############################################################################
+## ping_scaling_test.py
+## PING scaling: period vs tau_GABA regression (~30-40 min)
+##############################################################################
+==============================================================================
+VERSION FINGERPRINT  —  these must match on every machine
+==============================================================================
+  spectral_null.py       sha256[:12] = 5552f0231b52
+  ca1_v2.py              sha256[:12] = 5cae329510d1
+  artifact_demo.py       sha256[:12] = b336dcdf0c56
+  ping_scaling_test.py   sha256[:12] = 346c8a9d255b
+  v1_diagnosis.py        sha256[:12] = 3217d2e52fb4
+  --------------------------------------------------------------------------
+  brian2                 = 2.10.1
+  numpy                  = 2.2.4
+  scipy                  = 1.18.0
+  matplotlib             = not installed
+  python                 = 3.12.1
+  freq resolution df     = 0.122 Hz
+  recording              = 21 s
+  comb notch             = ON
+  tau_GABA sweep         = [2, 3, 4, 6, 8, 12, 16, 24] ms
+  N_surr                 = 1000
+==============================================================================
+
+========================================================================================
+PING SCALING TEST — the check that is an experiment, not a statistic
+========================================================================================
+PING requires the peak frequency to fall roughly as 1/tau_GABA, because
+inhibitory decay sets the cycle period. A drive harmonic, a statistical
+fluctuation, and a resonance set by any other time constant will not move.
+
+----------------------------------------------------------------------------------------
+LIF baseline
+----------------------------------------------------------------------------------------
+   tau_GABA   rate_E   rate_I   gamma p    prom   null    PEAK   per-seed peaks
+        2ms      9.5     62.2     0.350    7.24   6.70    39.3   [37.8, 50.5, 39.3, 34.7, 55.9]
+        3ms      8.0     48.0     0.118    7.67   6.69    33.8   [33.4, 51.6, 33.8, 39.9, 32.0]
+        4ms      7.2     40.0     0.020    8.14   6.66    40.5   [36.7, 41.1, 40.5, 33.8, 55.5]
+        6ms      6.3     31.2     0.023    8.25   6.61    38.2   [33.4, 38.3, 38.2, 33.6, 44.8]
+        8ms      5.8     26.5     0.022    8.43   6.58    36.6   [32.5, 52.5, 43.2, 32.3, 36.6]
+       12ms      5.3     21.4     0.009    8.53   6.51    32.2   [31.1, 41.5, 35.3, 32.2, 31.2]
+       16ms      4.9     19.0     0.139    7.43   6.47    37.5   [33.1, 45.5, 38.0, 37.5, 35.4]
+       24ms      4.7     16.8     0.485    6.54   6.46    40.6   [33.3, 43.5, 50.7, 38.0, 40.6]
+
+  PING prediction:  period = fixed_delay + k * tau_GABA   (affine)
+  fitted:           period = 27.3 + -0.041 * tau_GABA   (ms)
+  slope = -0.041 +/- 0.123   R^2 = 0.018   p = 0.7482
+  PRE-REGISTERED CRITERION: slope > 0 AND p < 0.05. Nothing else.
+
+  => CRITERION NOT MET. NOT PING. Whatever this peak is, it is not the
+     excitatory-inhibitory loop oscillating, and no claim of emergent
+     gamma is warranted -- however many screens it passed.
+     Screens reject; only this test confirms.
+
+----------------------------------------------------------------------------------------
+Scaled 4x
+----------------------------------------------------------------------------------------
+   tau_GABA   rate_E   rate_I   gamma p    prom   null    PEAK   per-seed peaks
+        2ms      8.5     55.2     0.259    7.39   6.80    61.8   [53.3, 63.6, 61.8, 54.7, 78.5]
+        3ms      6.9     40.1     0.039    8.22   6.78    55.2   [47.2, 61.2, 55.2, 49.8, 60.8]
+        4ms      6.1     31.8     0.015    8.72   6.80    55.2   [55.9, 55.2, 62.0, 45.3, 45.2]
+        6ms      5.2     22.7     0.001    9.61   6.86    44.1   [44.1, 36.7, 41.5, 54.9, 46.9]
+        8ms      4.7     17.9     0.001   11.10   6.92    40.4   [39.9, 40.5, 40.4, 40.5, 38.6]
+       12ms      4.1     12.8     0.001   10.94   6.80    35.0   [38.0, 35.0, 30.6, 36.9, 33.3]
+       16ms      3.8     10.1     0.001   10.77   6.65    32.8   [30.8, 35.0, 33.1, 32.8, 31.6]
+       24ms      3.3      7.3     0.001    9.41   6.48    31.0   [30.8, 30.5, 31.0, 32.6, 33.6]
+
+  PING prediction:  period = fixed_delay + k * tau_GABA   (affine)
+  fitted:           period = 16.8 + 0.760 * tau_GABA   (ms)
+  slope = +0.760 +/- 0.113   R^2 = 0.884   p = 0.0005
+  PRE-REGISTERED CRITERION: slope > 0 AND p < 0.05. Nothing else.
+
+  => CRITERION MET. The cycle period lengthens with the inhibitory decay
+     constant, as PING requires. The peak is a network rhythm generated
+     by the E-I loop, and the 17 ms intercept is the fixed part of
+     the loop delay (AMPA, membrane, refractory) -- which is why the
+     FREQUENCY moves far less than tau does.
+
+========================================================================================
+Screens can only reject. This is the only check that can confirm — and it
+is the only one that requires re-running the model rather than re-analysing
+a spectrum. That is not an inconvenience. That is the point.
+========================================================================================
+   [ping_scaling_test.py finished in 1236s, exit 0]
+
+==============================================================================
+DONE. Everything above is in: results_20260714_115650.log
+
+Read these four lines before anything else:
+  1. spectral_null   -> false positives should be 0-3/40, power 20/20.
+  2. artifact_demo   -> E3: raw pipeline must MISS the real rhythm; notched must find it.
+  3. ca1_v2          -> theta p < 0.001 in ALL five conditions (positive control).
+  4. ping_scaling    -> does the peak move with tau_GABA? That is the paper.
+==============================================================================

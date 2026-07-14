@@ -20,14 +20,15 @@ WHAT WAS WRONG IN v1 (all three verified by re-running v1's own code)
 
 2. SILENT INTERNEURONS in the hybrid net. make_net passed I_mean_lif = 1.0 to
    the HH interneurons, but the HH rheobase is ~6-7 uA/cm^2 (measured: I=1.0 ->
-   0 spikes; I=7.0 -> 59 spikes). The hybrid configuration, whose whole purpose
+   0 sustained spikes; I=7.0 -> 46). The hybrid arm, whose whole purpose
    was to test "does retaining detailed inhibitory kinetics recover gamma?",
    contained interneurons that never fired once.
 
 3. NO NULL DISTRIBUTION for the peak-prominence statistic. Prominence takes the
    MAX over ~40 chi-square-distributed Welch bins, so it is positively biased:
-   on data with NO rhythm the statistic still returns ~3.5-4.0 dB (measured over
-   40 independent no-rhythm datasets). v1 reported theta prominence of 6.6-7.5 dB
+   on data with NO rhythm the statistic returns 5.62 +/- 0.61 dB at the analysis
+   settings used here (200 no-rhythm datasets; artifact_demo E1). The null also
+   MOVES with the Welch segment length. v1 reported theta prominence of 6.6-7.5 dB
    as evidence of a preserved rhythm. That is close to the noise floor of the
    statistic itself. v1's band-edge and harmonic flags do not catch this.
 
@@ -43,7 +44,10 @@ WHAT v2 DOES DIFFERENTLY
     (I_DRIVE_PYR / I_DRIVE_INT_HH / I_DRIVE_INT_LIF). Accidentally feeding a
     LIF-scaled current to an HH cell is now a NameError, not a silent zero.
   * Rhythms are tested against a SURROGATE NULL (spectral_null.py; validated at
-    0/40 false positives, 20/20 power). Report p, never raw dB.
+    2/40 false positives -- the nominal 5% -- and 20/20 power). Report p, not dB.
+    A surrogate null is NECESSARY AND NOT SUFFICIENT: the drive's harmonics are
+    non-random fast structure, so it calls them significant. The comb is notched
+    out of the spectrum BEFORE the maximum is taken. See artifact_demo E2, E3.
   * v1's one valid arm — single-neuron HH vs LIF cost — is retained, with all
     models on the same integrator and dt, as v1 correctly insisted.
 
@@ -96,16 +100,18 @@ I_THETA        = 30 * pA
 SIGMA_V        = 3 * mV
 
 # ---- weights, specified AT THE REFERENCE NETWORK SIZE ----
-# W_IE = 6 nS is not a guess. It was calibrated by POSITIVE CONTROL: sweep W_IE,
-# and keep the range in which the surrogate test recovers the 6 Hz theta that we
-# KNOW is injected. A test that cannot see a rhythm we put there by hand has no
-# standing to say anything about gamma. Measured (N=80, 3 seeds, jitter null):
-#     W_IE = 3 nS  -> rate_E 9.4 Hz, theta p=0.003, recovered in 100% of seeds
-#     W_IE = 6 nS  -> rate_E 6.0 Hz, theta p=0.003, recovered in 100% of seeds
-#     W_IE = 10 nS -> rate_E 4.5 Hz, theta p=0.030, recovered in  67% of seeds
-#     W_IE = 20 nS -> rate_E 3.2 Hz, theta p=0.535, recovered in  33% of seeds  <- old default: BLIND
-# Note this criterion never looks at gamma, so it cannot p-hack the gamma result.
-W_EE_REF, W_EI_REF, W_IE_REF, W_II_REF = 0.4 * nS, 6.0 * nS, 6.0 * nS, 8.0 * nS
+#
+# W_IE = 6 nS is adopted because it yields a pyramidal firing rate of ~6 Hz, the
+# physiological target for CA1 pyramidal cells. It is chosen on the RATE.
+#
+# It is NOT selected by the positive control. calibrate_w_ie() below runs the
+# sweep and prints what it finds: theta is recovered in 100% of seeds at every
+# weight tested, so the control establishes that the pipeline HAS POWER and
+# nothing more. It never examines the gamma band, so it cannot bias the gamma
+# result in either direction.
+W_IE_ADOPTED_NS = 6.0
+W_EE_REF, W_EI_REF, W_IE_REF, W_II_REF = (0.4 * nS, 6.0 * nS,
+                                          W_IE_ADOPTED_NS * nS, 8.0 * nS)
 
 # connectivity — PER TYPE.  E->E stays sparse (CA1 really is); the rest are not.
 P_EE_BASE, P_EI_BASE, P_IE_BASE, P_II_BASE = 0.02, 0.20, 0.25, 0.20
@@ -116,11 +122,10 @@ N_EXC_REF, N_INH_REF = 80, 20
 # ---- IN-DEGREE NORMALISATION (third bug, found while calibrating) ------------
 # Without this, growing the network silently multiplies the inhibition each
 # pyramidal cell receives:  in-degree = N_inh * p_ie, so 20->80 interneurons
-# QUADRUPLES it. Measured at W_IE=20 nS: rate_E fell 3.2 Hz (N=80) -> 0.6 Hz
-# (N=320). The "scaled 4x" arm was therefore not testing SCALE, it was testing
-# "4x more inhibition" -- the same class of error as v1's vacuous arms.
-# Scaling w by the reference in-degree / actual in-degree keeps the total
-# synaptic drive per cell constant, so scale is the only thing that varies.
+# QUADRUPLES it. Without normalisation the "scaled 4x" arm would not test SCALE,
+# it would test "4x more inhibition". Scaling w by (reference in-degree)/(actual
+# in-degree) holds the total synaptic drive per cell constant, so size is the only
+# thing that varies.
 def scaled_weights(n_exc, n_inh, p_ee, p_ei, p_ie, p_ii):
     def s(w_ref, n_pre_ref, p_ref, n_pre, p):
         return w_ref * (n_pre_ref * p_ref) / max(n_pre * p, 1e-12)
@@ -130,11 +135,11 @@ def scaled_weights(n_exc, n_inh, p_ee, p_ei, p_ie, p_ii):
             s(W_II_REF, N_INH_REF, P_II_BASE, n_inh, p_ii))
 
 # ---- RECORDING LENGTH IS SET BY THE HARMONIC SCREEN, NOT BY CONVENIENCE -----
-# The drive-harmonic screen blocks ~3*df/f_drive of the analysis band. At the
-# old 3 s duration (df = 1.22 Hz) that was 62% of the gamma band, and a genuine
-# 40 Hz rhythm was rejected as "7 x the 6 Hz drive". 21 s gives df = 0.12 Hz and
-# ~6% blocked, at which resolution the screen rejects true harmonics and keeps
-# true rhythms. Verified in artifact_demo.py.
+# The drive-harmonic screen blocks ~3*df/f_drive of the analysis band. At 2.5 s
+# (df = 0.40 Hz) that is 20% of the gamma band, and a genuine 40 Hz rhythm is
+# rejected as a drive harmonic. 21 s gives df = 0.12 Hz and 6% blocked, at which
+# resolution the screen rejects true harmonics and keeps true rhythms.
+# Measured in v1_diagnosis.py (M2).
 DURATION, TRANSIENT, DT = 21000 * ms, 1000 * ms, 0.1 * ms
 
 # ---- N_SURR: this is pure Monte-Carlo precision on the permutation p ---------
@@ -325,6 +330,83 @@ CONDITIONS = [
 ]
 
 
+def calibrate_w_ie(seeds=(100, 101, 102)):
+    """THE POSITIVE CONTROL, RUN RATHER THAN REMEMBERED.
+
+    W_IE = 6 nS is not a guess: it was calibrated by requiring the pipeline to
+    recover the 6 Hz theta that we KNOW is injected. A test that cannot see a
+    rhythm placed there by hand has no standing to say anything about one that
+    might not be there.
+
+    This sweep used to live in a COMMENT above W_IE_REF. The numbers were real,
+    but a number in a comment is a number no one can check, and running this file
+    did not produce them. Section 2.5 of the manuscript quoted them. It is a paper
+    about archives that fail to produce what they claim. So it runs now.
+
+    The criterion never examines the gamma band, so it cannot bias the gamma result."""
+    print("=" * 92)
+    print("POSITIVE CONTROL — calibration of W_IE by theta recovery")
+    print("=" * 92)
+    print("  Sweep the inhibitory weight. Keep the range where the pipeline still")
+    print("  recovers the 6 Hz theta that IS IN THE INPUT. This never looks at gamma.\n")
+    print(f"  {'W_IE':>7} {'rate_E':>9} {'theta p':>10} {'theta recovered in':>20}")
+    print("  " + "-" * 52)
+    global W_IE_REF
+    keep = W_IE_REF
+    out = []
+    try:
+        # try/finally, not a bare assignment at the end. build_and_run() raises
+        # AssertionError on a disconnected pathway or a silent population. If it
+        # raises on the last sweep value, a bare restore never executes and
+        # W_IE_REF is left at 20 nS for the rest of the process -- every
+        # subsequent scaled_weights() call silently uses the wrong inhibition,
+        # with nothing in the output saying so.
+        for w in (3.0, 6.0, 10.0, 20.0):
+            W_IE_REF = w * nS
+            rates, ps, rec = [], [], []
+            for s in seeds:
+                res = build_and_run(N_EXC_REF, N_INH_REF, seed_val=s)
+                _, t = rhythm_pvals(res, seed=s)
+                rates.append(res["rate_e"]); ps.append(t["p"])
+                rec.append(t["significant"])
+            adopted = abs(w - W_IE_ADOPTED_NS) < 1e-9
+            tag = " (adopted)" if adopted else ""
+            print(f"  {w:>4.0f} nS {np.mean(rates):>8.1f} Hz {np.median(ps):>10.3f} "
+                  f"{100*np.mean(rec):>17.0f}%{tag}")
+            out.append((w, float(np.mean(rates)), float(np.median(ps)),
+                        float(np.mean(rec))))
+    finally:
+        W_IE_REF = keep
+
+    # STATE WHAT THE SWEEP ACTUALLY SHOWED, not what it showed a month ago.
+    #
+    # This function used to print, unconditionally and regardless of the numbers
+    # immediately above it: "At 20 nS the pipeline fails to detect a rhythm that
+    # is unambiguously present." That was measured at a 3 s recording length. At
+    # the 21 s length that section 2.3 derives, it is false -- theta is recovered
+    # at every weight. The sentence was a conclusion hard-coded into a print
+    # statement, in the positive control of a paper about conclusions that outlive
+    # the measurements behind them.
+    n_ok = sum(1 for _, _, _, r in out if r == 1.0)
+    print()
+    print(f"  Theta is recovered in 100% of seeds at {n_ok} of {len(out)} weights.")
+    if n_ok == len(out):
+        print("  => The control PASSES: the pipeline can see a rhythm that is known to")
+        print("     be present, at every weight tested. It therefore has the power to")
+        print("     say something about a rhythm that might not be.")
+        print()
+        print("     It does NOT discriminate among these weights, and no claim that it")
+        print("     does should be made. W_IE = 6 nS is adopted because it yields a")
+        print("     pyramidal rate of ~6 Hz, which is the physiological target. The")
+        print("     choice is made on the rate column, not on the theta column.")
+    else:
+        print("  *** The pipeline is BLIND at some weights. It cannot recover a rhythm")
+        print("  *** placed there by hand. Nothing downstream may be reported.")
+        raise SystemExit("positive control failed -- do not report these results")
+    print()
+    return out
+
+
 def main():
     df = (1.0 / DT_S) / NPERSEG
     print_version_banner({
@@ -345,6 +427,8 @@ def main():
     print(f"drives (separately named): pyr={I_DRIVE_PYR} | int_LIF={I_DRIVE_INT_LIF} "
           f"| int_HH={I_DRIVE_INT_HH}")
     print(f"surrogates per test: {N_SURR} (jitter) | network seeds: {SEEDS}\n")
+
+    calibrate_w_ie()
 
     print("-" * 92)
     print("PRE-FLIGHT (the two assertions v1 lacked)")
@@ -413,14 +497,15 @@ def main():
               f"{len(fooled)}/{len(rows)} conditions:")
         for r in fooled:
             print(f"      {r[0]}: median p={r[2]:.3f} (see per-seed peaks above)")
-        print("  All were rejected by a harmonic screen. This is the paper's central")
-        print("  claim, reproduced inside its own pipeline.")
+        df = (1.0 / DT_S) / NPERSEG
+        print("  All were rejected by a harmonic screen: the surrogate null alone is")
+        print("  not sufficient, which is this paper's central claim, reproduced here")
+        print("  inside its own pipeline.")
         print()
-        print("  CAVEAT, and state it before a reviewer does: with a 6 Hz drive and")
-        print("  df=1.22 Hz, harmonics at 30/36/42/48/54/60/66/72/78 Hz each block")
-        print("  +/-1.83 Hz -- the harmonic screen rejects 62% of the 30-80 Hz band.")
-        print("  It shows a peak is NOT DISTINGUISHABLE from a harmonic; it does not")
-        print("  prove it IS one. Only tau_GABA scaling separates the two.")
+        print(f"  CAVEAT. At df = {df:.3f} Hz the screen rejects "
+              f"{100*blocked_fraction(df, F_THETA/Hz):.0f}% of the 30-80 Hz band. It")
+        print("  shows a peak is NOT DISTINGUISHABLE from a drive harmonic; it does not")
+        print("  prove that it IS one. Only the tau_GABA scaling test separates them.")
         print()
     if not any(r[3] for r in rows):
         print("  No condition shows emergent gamma against the null.")

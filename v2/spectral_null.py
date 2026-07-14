@@ -61,19 +61,16 @@ from scipy.ndimage import gaussian_filter1d
 # binning bought nothing and cost 10x the compute; that compute is better spent
 # on RECORDING LENGTH, which is what buys frequency resolution.
 #
-# WHY RESOLUTION IS NOW A FIRST-CLASS PARAMETER. The drive-harmonic screen
-# rejects a band of +/-1.5*df around every multiple of the drive. With a drive
-# at f0, harmonics are spaced f0 apart, so the fraction of the analysis band the
-# screen destroys is
+# RESOLUTION IS A FIRST-CLASS PARAMETER. The drive-harmonic screen rejects
+# +/-1.5*df around every multiple of the drive, so the fraction of the analysis
+# band it destroys is
 #         blocked  ~  3 * df / f0
-# At df = 1.22 Hz and f0 = 6 Hz that is 61% of the band (measured: 66%), and a
-# GENUINE 40 Hz rhythm is rejected as "7 x drive" because 42 - 40.3 = 1.7 Hz is
-# inside the tolerance. The screen then destroys the thing it exists to protect.
-# Requiring blocked <= X gives
+# At coarse resolution the screen destroys the rhythm it exists to protect: at
+# 2.5 s (df = 0.40 Hz) it blocks 20% of the 30-80 Hz band and rejects a genuine
+# 40 Hz rhythm as a drive harmonic. Requiring blocked <= X gives
 #         df <= X * f0 / 3          (X = 0.10, f0 = 6 Hz  ->  df <= 0.20 Hz)
-# which at 1 ms binning needs nperseg >= 5000 samples, i.e. >= 5 s per Welch
-# segment and ~20 s of recording. Verified: at 20 s (df = 0.15 Hz, 8% blocked)
-# the screen rejects a true harmonic AND keeps a genuine 40 Hz gamma.
+# i.e. >= 5 s per Welch segment. All results here use 21 s (df = 0.12 Hz, 6%
+# blocked). Measured in v1_diagnosis.py (M2).
 DT_S = 1e-3          # 1 ms binning for the population rate
 NPERSEG = 8192       # with 1 ms bins -> df = 1000/8192 = 0.12 Hz
 FIT_LO, FIT_HI = 1.0, 100.0
@@ -113,11 +110,17 @@ def check_resolution(df, drive_hz, band=(30.0, 80.0), warn_above=0.15):
 # null 6.68 vs 1.61, verdict "GAMMA" vs "no gamma") because they were executing
 # different files. Neither table meant anything. Print the fingerprint, always.
 # ============================================================================
+# Every gated file, not a subset: the banner and run_all.sh must agree on what
+# "the archive" is.
+GATED = ("spectral_null.py", "ca1_v2.py", "artifact_demo.py",
+         "ping_scaling_test.py", "v1_diagnosis.py")
+
+
 def _fingerprint():
     import hashlib, os
     out = {}
     here = os.path.dirname(os.path.abspath(__file__))
-    for fn in ("spectral_null.py", "ca1_v2.py", "artifact_demo.py"):
+    for fn in GATED:
         p = os.path.join(here, fn)
         out[fn] = (hashlib.sha256(open(p, "rb").read()).hexdigest()[:12]
                    if os.path.exists(p) else "MISSING")
@@ -125,19 +128,18 @@ def _fingerprint():
 
 
 def _versions():
-    """Record what was ACTUALLY loaded, not what we assume is installed.
-
-    matplotlib was originally left out of this banner, so no log recorded it,
-    so its version had to be guessed when the frozen requirements were written.
-    A guess in a pinned-version file is indistinguishable from a measurement.
-    Everything the code can import, it now reports."""
+    """The versions actually loaded in this process, not the ones assumed."""
     import importlib
     out = {}
     for mod in ("brian2", "numpy", "scipy", "matplotlib"):
         try:
             out[mod] = importlib.import_module(mod).__version__
-        except Exception:
+        except ImportError:
             out[mod] = "not installed"
+        except Exception as e:
+            # Not "not installed": a broken install, a shadowed package or an ABI
+            # mismatch is a different problem and must not be reported as absence.
+            out[mod] = f"PRESENT BUT UNREADABLE: {type(e).__name__}: {e}"
     import sys as _s
     out["python"] = _s.version.split()[0]
     return out
@@ -305,7 +307,28 @@ def test_rhythm(spike_times_s, n_neurons, T_s, band=(30.0, 80.0),
         (2) not at a band edge                    [is it a fit artifact?]
         (3) not a harmonic of the firing rate OR of the drive  [is it its own?]
     Measured example: the 320-cell net gives p = 0.010 with the peak at 54.9 Hz.
-    The drive is 6 Hz. 9 x 6 = 54. That is not gamma."""
+    The drive is 6 Hz. 9 x 6 = 54. That is not gamma.
+
+    HOW THE NOTCH AND SCREEN 3 INTERACT, stated because it is not obvious and
+    because the paper's phrasing depended on getting it right:
+
+    When notch=True (every result in the paper), prominence_notched has ALREADY
+    excised every bin within 4*df of every k*drive before the maximum was taken.
+    A peak that survived that excision cannot then be within harmonic_of's 1.5*df
+    tolerance of a tooth. So k_drive is UNCONDITIONALLY None whenever the notch is
+    on, and screen 3 can never fire.
+
+    That is not a bug and it is not redundancy. The notch SUBSUMES screen 3, and
+    does the job earlier and better: a screen can only reject a peak the statistic
+    has already found, and the whole finding of this paper is that the un-notched
+    statistic never finds the rhythm in the first place (see artifact_demo E6).
+    Screen 3 is retained because it is the only defence on the notch=False path,
+    which artifact_demo E2 and E3 use to DEMONSTRATE the artifact.
+
+    So: on the notched path there are three live checks, not four, and the comb is
+    handled by the statistic rather than by a screen. Anywhere the manuscript says
+    "four screens, each artifact caught by exactly one", it is describing the
+    un-notched path."""
     rng = np.random.default_rng(seed)
     fs = 1.0 / dt_s
 
@@ -394,11 +417,8 @@ def _make_spikes(T_s, n_neurons, base_hz, mod_hz=None, mod_depth=0.0,
 
 
 if __name__ == "__main__":
-    # T MUST match the analysis configuration. An earlier version of this block
-    # used T = 2.5 s while artifact_demo.py used 21 s, so the two files reported
-    # DIFFERENT nulls (9.66 dB vs 5.62 dB) for the same statistic. The null of
-    # peak prominence depends on the number of Welch bins AND the number of Welch
-    # segments; both depend on T. Never quote a null without its configuration.
+    # T must match the analysis configuration: the null of this statistic depends
+    # on the Welch segment length, so a self-test at a different T tests nothing.
     T, N = 21.0, 80
     N_FP, N_PW, NS = 40, 20, 300
 

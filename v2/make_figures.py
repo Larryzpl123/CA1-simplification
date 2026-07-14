@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-make_figures.py — the four figures.
+make_figures.py — the five figures.
 Larry (Peilin) Zhong
 
-Fig 1  the null of the prominence statistic          (generated live, no network)
-Fig 2  synchrony defeats the surrogate null          (from the logged runs)
-Fig 3  the harmonic comb, and the notch              (generated live, no network)
-Fig 4  MAIN: period vs tau_GABA -- the PING test     (from the pre-registered run)
+Fig 1  the null of the prominence statistic
+Fig 2  synchrony defeats the surrogate null
+Fig 3  the harmonic comb, and the notch
+Fig 4  MAIN: period vs tau_GABA -- the pre-registered PING test
+Fig 5  screens cannot rescue a rhythm the statistic never found
 
-Figs 1 and 3 are recomputed from scratch every time this script runs, because
-they cost nothing and a figure that cannot be regenerated is a claim you cannot
-check. Figs 2 and 4 report network runs that take an hour; their numbers are
-transcribed from results_*.log and are marked as such below. Both were reproduced
-to the last digit on two machines with different Python, numpy and hardware.
+Figures 1, 2, 3 and 5 are recomputed from scratch on every run. Figure 4 plots the
+network sweep in ping_scaling_test.py, which takes 25 minutes; its values are read
+from that script's own output and are listed in the source below.
 
-Output: figure1..figure4 as .pdf (vector, for the manuscript) and .png (preview).
+Writes to ../figures/. That is the only place the figures live.
+Output: figure1..figure5 as .pdf (vector, for the manuscript) and .png (preview).
 """
 
 import os
@@ -41,11 +41,9 @@ plt.rcParams.update({
 K, G = "#000000", "#808080"
 LG = "#C8C8C8"
 
-# ONE legend rule, applied everywhere: OUTSIDE the axes, above, horizontal.
-# Earlier drafts placed legends "wherever they fit" -- upper left here, lower
-# right there -- which is not a style, it is the absence of one, and it collided
-# with the data in three of four figures. A rule that cannot collide is better
-# than a judgement call made four separate times.
+# ONE legend rule, everywhere: outside the axes, above, horizontal. A legend that
+# is placed "where it fits" is placed by a judgement call once per figure, and
+# collides with the data.
 def legend_above(ax, ncol=2, y=1.02):
     ax.legend(frameon=False, loc="lower left", bbox_to_anchor=(0, y),
               ncol=ncol, fontsize=7.5, handlelength=1.8, columnspacing=1.4,
@@ -53,12 +51,8 @@ def legend_above(ax, ncol=2, y=1.02):
 
 
 def panel(ax, letter):
-    """Panel letter only. NO axes titles anywhere in this paper.
-
-    An axes title and a legend-above occupy the same strip and collide, and
-    stacking them wastes a third of the figure. Journals put the description in
-    the caption for exactly this reason. So: letter in the corner, legend above,
-    everything else in the caption. One rule, four figures, no judgement calls."""
+    """Panel letter only. No axes titles: they occupy the same strip as the
+    legend. Descriptions go in the caption."""
     ax.text(-0.16, 1.06, letter, transform=ax.transAxes, fontsize=10,
             fontweight="bold", va="bottom", ha="left")
 
@@ -67,14 +61,7 @@ FIGDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "figures
 
 
 def save(fig, name):
-    """Write to ../figures/, the ONE place figures live.
-
-    This used to write into the working directory, and the figures were then
-    copied by hand into ../figures/. So there were two copies, and after the
-    figures were redrawn only one of them was updated: the repository shipped a
-    v2/ directory whose figures were four revisions behind the figures/ directory
-    beside it, and nothing said so. A second copy of anything is a copy that goes
-    stale silently, which is the subject of this paper. There is now one copy."""
+    """Write to ../figures/. That is the only copy of the figures."""
     os.makedirs(FIGDIR, exist_ok=True)
     for ext in ("pdf", "png"):
         fig.savefig(os.path.join(FIGDIR, f"{name}.{ext}"))
@@ -100,11 +87,7 @@ def figure1():
     ax.hist(v, bins=28, color=LG, edgecolor=K, linewidth=0.6,
             label="200 datasets with NO rhythm")
 
-    # Every marker goes in the legend. NOT ONE inline annotation.
-    # The previous version put four text labels inside the axes and all four
-    # collided -- with each other, with the dotted lines, and with the bars.
-    # Inline annotation on a crowded axis is a judgement call made once per label;
-    # a legend is a rule applied to all of them.
+    # Every marker goes in the legend; no inline annotation on a crowded axis.
     p95 = np.percentile(v, 95)
     ax.axvline(0, color=K, lw=1.4, ls="-",
                label="0 dB: what an unbiased statistic would give")
@@ -127,15 +110,27 @@ def figure1():
 
 # =============================================================================
 # FIG 2 — synchrony defeats the null; the notch fixes it.
-# Numbers from results_*.log (artifact_demo, 21 s, N_surr = 400).
+# Recomputed from artifact_demo's E4, not transcribed from its log.
 # =============================================================================
 def figure2():
-    print("figure 2: synchrony defeats the surrogate null (from logged run)")
-    jit = np.array([50, 30, 20, 12, 8, 5, 3], float)
-    raw_prom = np.array([5.66, 5.84, 5.59, 12.28, 25.86, 32.98, 37.23])
-    notch_prom = np.array([5.69, 5.83, 5.66, 6.34, 6.05, 5.92, 5.44])
-    raw_fp = np.array([0, 17, 0, 100, 100, 100, 100], float)
-    notch_fp = np.array([0, 17, 0, 17, 0, 0, 0], float)
+    print("figure 2: synchrony defeats the surrogate null (recomputing, ~3 min)")
+    jit = np.array(A.JITTER_SWEEP, float)
+    raw_prom, notch_prom, raw_fp, notch_fp = [], [], [], []
+    for j in jit:
+        raw, ntc = [], []
+        for k in range(A.N_REP_SWEEP):
+            st = A.synchronous_spikes(A.BASE_HZ, jitter_ms=j, depth_gamma=0.0,
+                                      rng=np.random.default_rng(4000 + k))
+            for notch, acc in ((False, raw), (True, ntc)):
+                acc.append(A.test_rhythm(st, A.N_NEURON, A.T_S, band=A.GAMMA,
+                                         n_surr=A.N_SURR_SWEEP, method="jitter",
+                                         seed=k, drive_hz=A.DRIVE_HZ, notch=notch))
+        raw_prom.append(np.mean([r["obs_db"] for r in raw]))
+        notch_prom.append(np.mean([r["obs_db"] for r in ntc]))
+        raw_fp.append(100 * np.mean([r["significant"] for r in raw]))
+        notch_fp.append(100 * np.mean([r["significant"] for r in ntc]))
+    raw_prom = np.array(raw_prom); notch_prom = np.array(notch_prom)
+    raw_fp = np.array(raw_fp); notch_fp = np.array(notch_fp)
     null_mean = 5.62
 
     fig, (a1, a2) = plt.subplots(1, 2, figsize=(8.0, 3.2))
@@ -255,8 +250,14 @@ def figure4():
             label="80 + 20 neurons")
     a1.plot(tau, scal_f, "o-", color=K, lw=1.5, ms=5.5,
             label="320 + 80 neurons")
+    # A log x-axis compresses the high-tau end, where four of the eight grid points
+    # sit, and eight labels overlap there. Label a readable subset (the endpoints
+    # and the powers of two); all eight points are still drawn and still fitted.
+    LABELLED = {2, 4, 8, 16, 24}
     a1.set_xscale("log")
-    a1.set_xticks(tau); a1.set_xticklabels([f"{t:.0f}" for t in tau])
+    a1.set_xticks(tau)
+    a1.set_xticklabels([f"{t:.0f}" if t in LABELLED else "" for t in tau])
+    a1.tick_params(axis="x", which="minor", bottom=False)
     a1.set_xlabel(r"$\tau_{\mathrm{GABA}}$ (ms)")
     a1.set_ylabel("peak frequency (Hz)")
     legend_above(a1)
@@ -266,7 +267,6 @@ def figure4():
     # --- right: PERIOD. This is the prediction, and the test. ---
     # Panel B originally carried a legend at LOWER RIGHT, while every other panel
     # in the paper has it above. That is the same "place it wherever it fits"
-    # non-rule that collided with the data three times in the first draft, and I
     # had already written the rule down before breaking it here.
     # The slope, R^2 and p are in the caption, where a reader looks for them.
     # They do not need to be printed twice.
@@ -284,7 +284,7 @@ def figure4():
             a2.plot([0], [reg.intercept], "o", mfc="white", mec=K, mew=1.6, ms=7,
                     zorder=5, clip_on=False)
             a2.annotate(f"intercept {reg.intercept:.1f} ms\n= fixed loop delay",
-                        xy=(0, reg.intercept), xytext=(2.0, 32.0), fontsize=7,
+                        xy=(0, reg.intercept), xytext=(2.2, 35.5), fontsize=7,
                         ha="left", va="top",
                         arrowprops=dict(arrowstyle="->", lw=0.8, color=K))
 
@@ -304,17 +304,79 @@ def figure4():
               f"p={reg.pvalue:.4f}")
 
 
+# =============================================================================
+# FIG 5 — screens cannot rescue a masked rhythm. artifact_demo's E3, recomputed.
+#
+# Same data, two pipelines. The raw statistic followed by all four screens rejects
+# a genuine 40 Hz rhythm: the peak it is handed sits on the 30 Hz comb tooth, and
+# every screen is correct about THAT peak. A screen can only reject a peak the
+# statistic has already found.
+# =============================================================================
+def figure5():
+    print("figure 5: screens cannot rescue a masked rhythm (recomputing, ~2 min)")
+    cases = [("no rhythm",        "poisson", dict(depth_theta=0.0), None),
+             ("theta-locked\nσ = 5 ms", "sync", dict(jitter_ms=5),  None),
+             ("+ real 40 Hz",     "gt",      dict(gamma_hz=40.0),   40.0),
+             ("+ real 55 Hz",     "gt",      dict(gamma_hz=55.0),   55.0)]
+
+    def peaks(gen, kw, notch):
+        out = []
+        for k in range(6):
+            rng = np.random.default_rng(3000 + k)
+            st = (A.ground_truth(A.T_S, rng, **kw) if gen == "gt" else
+                  A.synchronous_spikes(A.BASE_HZ, rng=rng, **kw) if gen == "sync"
+                  else A.poisson_spikes(A.BASE_HZ, rng=rng, **kw))
+            # N_SURR_SWEEP (400), not E3's N_SURR (2000). The quantity PLOTTED is
+            # the peak frequency, which is read off the observed spectrum and does
+            # not depend on the surrogates at all. The surrogates enter only through
+            # the verdict, and the verdicts here are not close calls: the p-values
+            # are 0.000 and 0.5, not 0.04 and 0.06. Stated so that "the figure used
+            # a different N_surr from the table" is a disclosed choice with a reason
+            # rather than a discrepancy a reader has to discover.
+            out.append(A.test_rhythm(st, A.N_NEURON, A.T_S, band=A.GAMMA,
+                                     n_surr=A.N_SURR_SWEEP, method="jitter", seed=k,
+                                     drive_hz=A.DRIVE_HZ, notch=notch))
+        return (float(np.median([r["fpk"] for r in out])),
+                np.mean([r["is_rhythm"] for r in out]) > 0.5)
+
+    fig, ax = plt.subplots(figsize=(6.6, 3.4))
+    fig.subplots_adjust(top=0.78)
+    y = np.arange(len(cases))[::-1]
+    for i, (name, gen, kw, truth) in enumerate(cases):
+        fr, rr = peaks(gen, kw, False)
+        fn, rn = peaks(gen, kw, True)
+        yy = y[i]
+        if truth:
+            ax.axvline(truth, color=LG, lw=7, zorder=0,
+                       label="the rhythm that is actually there" if i == 2 else None)
+        ax.plot(fr, yy + 0.17, "v", color=K, ms=9, mfc="white", mew=1.4,
+                label="raw statistic + all four screens" if i == 0 else None)
+        ax.plot(fn, yy - 0.17, "o", color=K, ms=8,
+                label="comb-notched + the same four screens" if i == 0 else None)
+        for f_, dy, ok in ((fr, 0.17, rr == bool(truth)),
+                           (fn, -0.17, rn == bool(truth))):
+            ax.annotate(f"{f_:.1f}" + ("" if ok else "  rejected"), (f_, yy + dy),
+                        xytext=(7, -3), textcoords="offset points", fontsize=7.5,
+                        style="normal" if ok else "italic")
+    ax.axvline(30.0, color=K, lw=0.9, ls=":")
+    ax.annotate("30 Hz = 5 × 6 Hz,\nthe drive's fifth harmonic",
+                xy=(41.8, 2.55), fontsize=7.5, ha="left", va="center")
+    ax.set_yticks(y)
+    ax.set_yticklabels([c[0] for c in cases], fontsize=8)
+    ax.set_xlabel("peak frequency the pipeline reports (Hz)")
+    ax.set_xlim(25, 64)
+    ax.set_ylim(-0.55, len(cases) - 0.2)
+    legend_above(ax, ncol=2)
+    save(fig, "figure5_screens_cannot_rescue")
+
+
 if __name__ == "__main__":
-    # This script was the ONLY one that never printed its versions, because it is
-    # not part of run_all.sh's battery. So no log recorded matplotlib, so when the
-    # frozen requirements were written its version had to be guessed -- in a
-    # repository whose whole subject is not reporting unmeasured numbers.
-    # Every script prints what it loaded now. No exceptions.
     print_version_banner()
     print()
-    print("Building figures. Figs 1 and 3 are recomputed; 2 and 4 are the logged runs.\n")
+    print("Building figures.\n")
     figure1()
     figure2()
     figure3_inline()
     figure4()
-    print("\nDone. figure1..figure4 as .pdf (manuscript) and .png (preview).")
+    figure5()
+    print("\nDone. figure1..figure5 as .pdf (manuscript) and .png (preview).")
