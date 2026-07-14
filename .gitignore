@@ -6,3 +6,4 @@ ref*.docx
 *.docx
 *.pdf
 !figures/*.pdf
+v2/results_*.log
