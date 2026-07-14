@@ -138,7 +138,7 @@ The Zenodo record for the code and the Zenodo record for the paper are separate 
 
 | | DOI |
 |---|---|
-| **v2 preprint** | [10.5281/zenodo.21352530](https://doi.org/10.5281/zenodo.21352530) |
+| **v2 preprint** | [10.5281/zenodo.21352530](https://doi.org/10.5281/zenodo.21352530) · all versions: `10.5281/zenodo.21272958` |
 | **v2 code** | [10.5281/zenodo.21351830](https://doi.org/10.5281/zenodo.21351830) · all versions: `10.5281/zenodo.21265445` |
 | v1 preprint | [10.5281/zenodo.21272959](https://doi.org/10.5281/zenodo.21272959) · all versions: `10.5281/zenodo.21272958` |
 | v1 code | [10.5281/zenodo.21273211](https://doi.org/10.5281/zenodo.21273211) · all versions: `10.5281/zenodo.21265445` |
