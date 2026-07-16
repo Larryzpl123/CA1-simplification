@@ -38,6 +38,22 @@ import sys
 import pathlib
 
 # ---------------------------------------------------------------------------
+# Numbers this paper QUOTES FROM SOMEONE ELSE'S PAPER. A third category, which
+# the related work section forced into existence: such a number is not printed by
+# anything in this archive and is not arithmetic, so it can be neither in a log
+# nor in DERIVED. Its provenance is a citation, which is checkable, but checkable
+# by reading the cited paper rather than by grepping a log.
+#
+# The rule is unchanged in substance: every number in the manuscript has a
+# recorded provenance. Putting one of these in DERIVED would be a lie, and
+# deleting the sentence to satisfy the tool would be letting the tool decide the
+# science. So the category is named instead, and the source is written down.
+# ---------------------------------------------------------------------------
+CITED = {
+    "36.07": "Zhang et al. (2019), eLife 8:e44320 -- awake S-gamma centre of "
+             "gravity, 36.07 +/- 5.38 Hz. Quoted in the related work section.",
+}
+
 # Numbers that are DERIVED, not measured. Each needs its derivation, here, in
 # code, so that "it's just arithmetic" is a checkable statement and not an
 # excuse. If you add to this list without a derivation you have defeated the
@@ -138,7 +154,7 @@ def main():
     claims = numbers_in(body)
     unsupported = []
     for n, ctx in sorted(claims.items(), key=lambda kv: kv[0]):
-        if in_logs(n) or n in DERIVED:
+        if in_logs(n) or n in DERIVED or n in CITED:
             continue
         unsupported.append((n, ctx))
 
@@ -150,6 +166,8 @@ def main():
     print(f"  claims     : {len(claims)} numbers")
     print(f"  in a log   : {sum(1 for n in claims if in_logs(n))}")
     print(f"  derived    : {sum(1 for n in claims if n in DERIVED and not in_logs(n))}")
+    print(f"  cited      : {sum(1 for n in claims if n in CITED and not in_logs(n) and n not in DERIVED)}"
+          f"   (quoted from another paper; provenance is a citation, not a log)")
     print(f"  UNSUPPORTED: {len(unsupported)}")
     print()
     if not unsupported:

@@ -257,7 +257,11 @@ def figure4():
     a1.set_xscale("log")
     a1.set_xticks(tau)
     a1.set_xticklabels([f"{t:.0f}" if t in LABELLED else "" for t in tau])
-    a1.tick_params(axis="x", which="minor", bottom=False)
+    # bottom=False hides the minor TICK but not its LABEL, so matplotlib's log
+    # formatter still prints the decade minor tick at 20 as "2x10^1" between the
+    # 16 and 24 labels -- a third notation, on an axis whose other labels are
+    # plain integers. labelbottom=False removes it.
+    a1.tick_params(axis="x", which="minor", bottom=False, labelbottom=False)
     a1.set_xlabel(r"$\tau_{\mathrm{GABA}}$ (ms)")
     a1.set_ylabel("peak frequency (Hz)")
     legend_above(a1)
