@@ -7,7 +7,7 @@ authors:
     alias: Larry
     affiliation: "Shady Side Academy, Pittsburgh, PA, USA"
     email: 27zhongp@shadysideacademy.org
-version: "3.0"
+version: "3.1"
 date-released: 2026-07-16
 license: MIT
 repository-code: "https://github.com/Larryzpl123/CA1-simplification"
@@ -46,11 +46,8 @@ references:
     notes: "Version 1. Its central conclusion is reversed by this work; retained so the corrigendum can be independently checked."
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.21391899
-    description: "This release of the code (v3.0)."
-  - type: doi
     value: 10.5281/zenodo.21265445
-    description: "All versions of the code."
+    description: "All versions of the code. Resolves to the latest release."
 preferred-citation:
   type: article
   title: "Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit"
