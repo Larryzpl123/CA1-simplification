@@ -1,5 +1,5 @@
 {
-  "title": "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit\" (v2)",
+  "title": "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit\" (v3)",
   "upload_type": "software",
   "license": "MIT",
   "version": "3.0",
@@ -11,12 +11,7 @@
   ],
   "related_identifiers": [
     {
-      "identifier": "10.5281/zenodo.21273211",
-      "relation": "isNewVersionOf",
-      "scheme": "doi"
-    },
-    {
-      "identifier": "10.5281/zenodo.21352530",
+      "identifier": "10.5281/zenodo.21272958",
       "relation": "isSupplementTo",
       "scheme": "doi"
     }
@@ -27,6 +22,7 @@
     "PING",
     "neural oscillations",
     "spectral artifacts",
+    "harmonic contamination",
     "surrogate testing",
     "pre-registration",
     "reproducibility"
