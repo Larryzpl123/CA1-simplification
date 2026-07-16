@@ -1,33 +1,38 @@
 cff-version: 1.2.0
-message: "If you use this software or the results in it, please cite the v2 preprint."
-title: "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms\" (v2)"
+message: "If you use this software or the results in it, please cite the preprint."
+title: "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms\" (v3)"
 authors:
   - family-names: Zhong
     given-names: Peilin
     alias: Larry
     affiliation: "Shady Side Academy, Pittsburgh, PA, USA"
     email: 27zhongp@shadysideacademy.org
-version: "2.2"
-date-released: 2026-07-14
+version: "3.0"
+date-released: 2026-07-16
 license: MIT
 repository-code: "https://github.com/Larryzpl123/CA1-simplification"
 abstract: >-
   Reduced spiking-network models of hippocampal CA1 are validated by asking
-  whether they preserve theta and gamma, using spectral peak prominence. In
-  these models theta is imposed as a drive. This work shows that combination
-  makes the criterion unusable: the drive's harmonic comb both creates false
-  gamma (100% false-positive rate against a surrogate null at tight phase
-  locking) and MASKS real gamma. Once the comb is excised from the spectrum,
-  emergent PING gamma is recovered in a 320-neuron network and confirmed by a
-  pre-registered mechanistic test (period = 16.8 + 0.760*tau_GABA ms;
-  p = 0.0005). It is absent at 80 neurons. Version 1 of this work reached the
-  opposite conclusion and is corrected here.
+  whether they preserve theta and gamma, using spectral peak prominence. Where
+  theta is imposed as a drive rather than emergent, that combination makes the
+  criterion unusable. That a sharp drive places harmonics in the bands above it,
+  and that they are read as activity there, is already established. What this
+  work establishes, on data where the gamma content is known by construction, is
+  that the comb also MASKS a genuine rhythm: the statistic followed by every
+  screen in the paper rejects a real 40 Hz oscillation, and each screen is
+  correct to do so, because the peak it was handed was never the rhythm. Once
+  the comb is excised from the spectrum, emergent PING gamma is recovered in a
+  320-neuron network and confirmed by a pre-registered mechanistic test
+  (period = 16.8 + 0.760*tau_GABA ms; p = 0.0005). It is absent at 80 neurons.
+  This work does not adjudicate whether hippocampal slow gamma is real; its data
+  are simulated. Version 1 reached the opposite conclusion and is corrected here.
 keywords:
   - computational neuroscience
   - hippocampal CA1
   - PING
   - neural oscillations
   - spectral artifacts
+  - harmonic contamination
   - surrogate testing
   - pre-registration
   - reproducibility
@@ -41,8 +46,8 @@ references:
     notes: "Version 1. Its central conclusion is reversed by this work; retained so the corrigendum can be independently checked."
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.21351830
-    description: "This release of the code."
+    value: 10.5281/zenodo.21391899
+    description: "This release of the code (v3.0)."
   - type: doi
     value: 10.5281/zenodo.21265445
     description: "All versions of the code."
@@ -54,5 +59,5 @@ preferred-citation:
       given-names: Peilin
       affiliation: "Shady Side Academy, Pittsburgh, PA, USA"
   year: 2026
-  doi: 10.5281/zenodo.21352530
-  url: "https://doi.org/10.5281/zenodo.21352530"
+  doi: 10.5281/zenodo.21272958
+  url: "https://doi.org/10.5281/zenodo.21272958"
