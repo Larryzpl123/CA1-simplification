@@ -4,6 +4,8 @@
 
 ---
 
+> **The current paper is Version 3** ([10.5281/zenodo.21393420](https://doi.org/10.5281/zenodo.21393420)). It adds a related work section to Version 2 and narrows what the paper claims. No result changed and nothing was re-run.
+>
 > ## ⚠️ Version 1 of this work reached a conclusion that Version 2 reverses.
 >
 > **v1 concluded that emergent gamma is absent from reduced CA1 models. That conclusion is wrong**, and it is wrong for two independent reasons: v1's "networks" contained essentially no synapses, and the spectral statistic it used is blind to gamma in a theta-driven network.
@@ -125,12 +127,15 @@ The two numbers collide, so read this once:
 
 | | numbering | meaning |
 |---|---|---|
-| **the paper** | Version 1, Version 2 | which *paper* |
-| **this code** | v1.0, v1.1, **v2.0, v2.1, v2.2** | which *release of the code* for that paper |
+| **the paper** | Version 1, Version 2, **Version 3** | which *paper*. Whole integers only |
+| **the paper's Zenodo record** | 1.0, 2.0, 3.0, 3.0.1, **3.0.2** | which *upload* of that paper |
+| **this code** | v1.0, v1.1, v2.0, v2.1, v2.2, v3.0, **v3.1** | which *release of the code* for that paper |
 
-**There is no paper v2.1 and no paper v2.2.** Releases v2.0, v2.1 and v2.2 are three releases of the code written for Version **2** of the paper; the first two accompanied earlier drafts of it and are superseded. The paper cites v2.2, which is the snapshot that produced its figures and every number in it.
+**There is no paper v2.1, no paper v3.1 and no fifth paper.** The code's major number tracks the paper it was written for: v3.0 and v3.1 are two releases of the code for Version **3**, and v2.0–v2.2 accompanied Version 2 and are superseded, not earlier papers.
 
-The Zenodo record for the code and the Zenodo record for the paper are separate records with separate DOIs, and both show a field called "Version 2.0". They do not mean the same thing.
+The paper's Zenodo record has a third component when an upload had to be redone without the paper changing. 3.0 was a .docx by mistake; 3.0.1 carried a manuscript whose title page and reference list disagreed about which code release accompanies it. The text is identical across 3.0, 3.0.1 and 3.0.2. Zenodo files cannot be replaced after publication, so these are separate records rather than edits, and the superseded ones stay visible and say so.
+
+The Zenodo record for the code and the Zenodo record for the paper are separate records with separate DOIs, and both show a field called "Version". They do not mean the same thing.
 
 ---
 
@@ -138,10 +143,14 @@ The Zenodo record for the code and the Zenodo record for the paper are separate 
 
 | | DOI |
 |---|---|
-| **v2 preprint** | [10.5281/zenodo.21352530](https://doi.org/10.5281/zenodo.21352530) |
-| **v2 code** | [10.5281/zenodo.21351830](https://doi.org/10.5281/zenodo.21351830) · all versions: `10.5281/zenodo.21265445` |
-| v1 preprint | [10.5281/zenodo.21272959](https://doi.org/10.5281/zenodo.21272959) · all versions: `10.5281/zenodo.21272958` |
-| v1 code | [10.5281/zenodo.21273211](https://doi.org/10.5281/zenodo.21273211) · all versions: `10.5281/zenodo.21265445` |
+| **v3 preprint** | [10.5281/zenodo.21393420](https://doi.org/10.5281/zenodo.21393420) · all versions: `10.5281/zenodo.21272958` |
+| **v3 code (v3.1)** | [10.5281/zenodo.21392319](https://doi.org/10.5281/zenodo.21392319) · all versions: `10.5281/zenodo.21265445` |
+| v2 preprint | [10.5281/zenodo.21352530](https://doi.org/10.5281/zenodo.21352530) |
+| v2 code | [10.5281/zenodo.21351830](https://doi.org/10.5281/zenodo.21351830) |
+| v1 preprint | [10.5281/zenodo.21272959](https://doi.org/10.5281/zenodo.21272959) · carries a notice: its conclusion is wrong |
+| v1 code | [10.5281/zenodo.21273211](https://doi.org/10.5281/zenodo.21273211) |
+
+The five gated simulation scripts in v3.1 are byte-identical to those in v2.2, so the run logs in `results/` are the logs behind Version 3 of the paper. Nothing was re-run for it.
 
 ---
 
