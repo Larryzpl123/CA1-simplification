@@ -47,6 +47,26 @@ and lists the four lines of prose that were reworded. It exits non-zero if a
 number or a verdict moves; that behaviour is tested by feeding it a log with one
 digit changed.
 
+## Version 4: the current gated-code log, and one non-gated log
+
+`larry_v4_20260717_163239.log` is the current run of the five gated scripts. Its
+fingerprints (`ca1_v2` 817b29fbb9b6, `ping_scaling_test` b2f43bf04529) are the
+Version 4 hashes. The change from the earlier gated hashes is comments, a
+docstring, and printed prose only: the intercept is no longer described as a loop
+delay, and `ca1_v2`'s false "size is the only thing that varies" comment is gone.
+`compare_runs.py` certifies larry_v23 against larry_v4 as every number and every
+verdict identical, three prose tokens aside (the withdrawn intercept sentence).
+
+`jobB_20260718_123645.log` is different in kind. It is produced by
+`v2/job_b_noise_matched.py`, which is **not in the hash gate**, on purpose:
+that script computes no gated result. It imports `ca1_v2.build_and_run` and
+`ping_scaling_test.test_rhythm` unchanged and calls them with different connection
+probabilities, to ask whether the 80 + 20 network's failure to show PING is about
+the cell count or the input fluctuations. Its 320 + 80 control reproduces the
+gated `larry_v4` fit to the last digit (16.8 + 0.760 τ, p = 0.0005), which is what
+lets the new 80 + 20 result be trusted: the gated code is unchanged, only the
+probabilities differ. The result is Figure 6 and the close of §3.8.
+
 ## Older logs are not kept
 
 Logs from archives that produced *different numbers* are not here. They are not
