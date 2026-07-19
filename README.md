@@ -139,7 +139,7 @@ The two numbers collide, so read this once:
 | **the paper's Zenodo record** | 1.0, 2.0, 3.0, 3.0.1, 3.0.2, **4.0** | which *upload* of that paper |
 | **this code** | v1.0, v1.1, v2.0, v2.1, v2.2, v3.0, v3.1, **v4.0** | which *release of the code* for that paper |
 
-**There is no paper v2.1, no paper v3.1 and no fifth paper.** The code's major number tracks the paper it was written for: v3.0 and v3.1 are two releases of the code for Version **3**, v4.0 is the code for Version **4**, and v2.0–v2.2 accompanied Version 2 and are superseded, not earlier papers.
+**A code release number is not a paper number, and counting code releases does not count papers.** There is no paper v2.1 and no paper v3.1: those are releases. The code's major number tracks the paper it was written for, so v3.0 and v3.1 are two releases of the code for Version **3**, v4.0 is the code for Version **4**, and v2.0–v2.2 accompanied Version 2 and are superseded, not earlier papers. There have been eight code releases and four papers.
 
 The paper's Zenodo record has a third component when an upload had to be redone without the paper changing. 3.0 was a .docx by mistake; 3.0.1 carried a manuscript whose title page and reference list disagreed about which code release accompanies it. The text is identical across 3.0, 3.0.1 and 3.0.2. Zenodo files cannot be replaced after publication, so these are separate records rather than edits, and the superseded ones stay visible and say so.
 
@@ -151,8 +151,8 @@ The Zenodo record for the code and the Zenodo record for the paper are separate 
 
 | | DOI |
 |---|---|
-| **v4 preprint** | all versions, resolves to latest: [10.5281/zenodo.21272958](https://doi.org/10.5281/zenodo.21272958) |
-| **v4 code (v4.0)** | all versions, resolves to latest: [10.5281/zenodo.21265445](https://doi.org/10.5281/zenodo.21265445) |
+| **v4 preprint** | [10.5281/zenodo.21444322](https://doi.org/10.5281/zenodo.21444322) · all versions: `10.5281/zenodo.21272958` |
+| **v4 code (v4.0)** | [10.5281/zenodo.21444272](https://doi.org/10.5281/zenodo.21444272) · all versions: `10.5281/zenodo.21265445` |
 | v3 preprint | [10.5281/zenodo.21393420](https://doi.org/10.5281/zenodo.21393420) |
 | v3 code (v3.1) | [10.5281/zenodo.21392319](https://doi.org/10.5281/zenodo.21392319) |
 | v2 preprint | [10.5281/zenodo.21352530](https://doi.org/10.5281/zenodo.21352530) |
