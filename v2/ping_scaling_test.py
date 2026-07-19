@@ -39,32 +39,45 @@ So: sweep tau_GABA over a wide range and watch the peak.
 
 THE TEST STATISTIC -- AND A THRESHOLD I GOT WRONG
 -------------------------------------------------
-The criterion is on the PERIOD, not the frequency. PING predicts
-    T_cycle = fixed_delay + k * tau_GABA
-which is affine in tau, so a 12-fold change in tau moves the FREQUENCY only about
-2-fold. A criterion that thresholds on frequency change therefore rejects a
-network that is obeying the theory.
+The criterion is on the PERIOD, not the frequency, and it is on the SLOPE alone:
+
+        T_cycle  =  a  +  k * tau_GABA        (affine, over the tested range)
+
+        TEST:  k > 0  and  p < 0.05.  Nothing else.
 
 PING does not predict f = 1/(2*tau_GABA). The cycle is: E fires -> recruits I ->
-I inhibits E -> E recovers when inhibition decays. Only the LAST step scales with
-tau_GABA. The others (AMPA rise/decay, membrane time constant, refractory period)
-are FIXED. So the prediction is on the PERIOD, and it is affine:
+I inhibits E -> E recovers when inhibition decays, and only that last step scales
+with tau_GABA. So the prediction is on the PERIOD and it is affine, which means a
+12-fold change in tau moves the FREQUENCY only about 2-fold. A criterion that
+thresholds on frequency change therefore rejects a network that is obeying the
+theory. Measured on the Scaled 4x condition, frequency moved only 1.71x and an
+earlier threshold called that "not PING" -- an unjustified hard threshold giving
+the wrong answer in a study whose entire subject is unjustified hard thresholds.
 
-        T_cycle  =  (fixed loop delay)  +  k * tau_GABA
+'a' IS A FIT PARAMETER, NOT A DELAY. DO NOT INTERPRET IT.
+---------------------------------------------------------
+This file used to call it fixed_delay and report it as "the fixed part of the
+loop delay (AMPA, membrane, refractory)". That is wrong, and the name was the
+claim: you can delete the sentence and the assertion survives in the variable.
 
-A tenfold change in tau_GABA therefore moves the frequency by much LESS than
-tenfold, and a ratio threshold on frequency will reject genuine PING. Measured
-on the Scaled 4x condition:
+Christoph Borgers -- of Borgers & Kopell (2003), which this work cites for PING --
+pointed it out by email on 2026-07-16:
 
-    tau_GABA    peak      period       fit: T = 19.1 + 0.673 * tau   (R2 = 0.81)
-      2 ms     55.2 Hz    18.1 ms      the 19.1 ms intercept IS the fixed delay
-      5 ms     43.5 Hz    23.0 ms      (tau_AMPA = 5 ms + membrane + refractory)
-     10 ms     34.3 Hz    29.2 ms
-     20 ms     32.3 Hz    31.0 ms
+    "We can't think of the intercept as 'what happens when tau_GABA=0', because
+     what happens then is that there is no PING. So I would be hesitant to ascribe
+     any scientific meaning to the intercept."
 
-Frequency moved only 1.71x, and the old threshold called that "not PING". It is
-exactly what PING predicts. An unjustified hard threshold gave the wrong answer
-in a study whose entire subject is unjustified hard thresholds.
+He is right twice over. The affine form is a local approximation over the range
+actually swept (2-24 ms); at tau_GABA = 0 the phenomenon does not exist, so the
+intercept is where a fitted line crosses an axis in a regime the model does not
+describe. And he notes the period depends much more strongly on the external
+drive, and almost as strongly on the I-to-E conductance (his Table 30.1, in
+Borgers 2017). The drive was held constant here, so anything this fit calls
+constant is constant only in that sense. "Fixed" was never measured.
+
+Nothing in this archive could have caught that. The hash gate, the surrogate
+null, the four screens and the 275-claim audit all check whether a number is
+real. This was a real number given a meaning it had not earned.
 
 AND A SECOND THRESHOLD I ALSO GOT WRONG
 ---------------------------------------
@@ -187,18 +200,21 @@ def main():
 
         # ---- the verdict: regress PERIOD on tau_GABA ----
         # NOT a ratio threshold on frequency. See the header: PING predicts
-        # T = fixed_delay + k*tau, so frequency moves far less than tau does, and
-        # a ratio threshold rejects real PING. This is the corrected test.
+        # T = a + k*tau, so frequency moves far less than tau does, and a ratio
+        # threshold rejects real PING. This is the corrected test.
         # PRE-REGISTERED, and it is the whole criterion. Nothing is bolted on.
-        #     PING predicts  T = fixed_delay + k*tau_GABA
-        #     ACCEPT iff     slope > 0  AND  p < 0.05
+        #     PING predicts  T = a + k*tau_GABA   (affine, over the tested range)
+        #     ACCEPT iff     slope k > 0  AND  p < 0.05
+        # 'a' is a fit parameter. It is NOT a delay and is not interpreted: at
+        # tau_GABA = 0 there is no PING, so it is an extrapolation out of the
+        # regime the model describes. See the header.
         tau = np.array([r[0] for r in rows], float)
         fpk = np.array([r[1] for r in rows], float)
         T = 1000.0 / fpk                              # period, ms
         reg = stats.linregress(tau, T)
 
         print()
-        print(f"  PING prediction:  period = fixed_delay + k * tau_GABA   (affine)")
+        print(f"  PING prediction:  period = a + k * tau_GABA   (affine, over the tested range)")
         print(f"  fitted:           period = {reg.intercept:.1f} + "
               f"{reg.slope:.3f} * tau_GABA   (ms)")
         print(f"  slope = {reg.slope:+.3f} +/- {reg.stderr:.3f}   "
@@ -208,9 +224,12 @@ def main():
         if reg.slope > 0 and reg.pvalue < 0.05:
             print("  => CRITERION MET. The cycle period lengthens with the inhibitory decay")
             print("     constant, as PING requires. The peak is a network rhythm generated")
-            print(f"     by the E-I loop, and the {reg.intercept:.0f} ms intercept is the fixed part of")
-            print("     the loop delay (AMPA, membrane, refractory) -- which is why the")
-            print("     FREQUENCY moves far less than tau does.")
+            print("     by the E-I loop. Because the relation is affine rather than")
+            print("     inverse, the FREQUENCY moves far less than tau does.")
+            print(f"     The intercept a = {reg.intercept:.1f} ms is NOT interpreted. At")
+            print("     tau_GABA = 0 there is no PING, so a is an extrapolation out of the")
+            print("     regime this model describes, and it moves with the drive, which was")
+            print("     held constant here. It is a fit parameter. See the header.")
         else:
             print("  => CRITERION NOT MET. NOT PING. Whatever this peak is, it is not the")
             print("     excitatory-inhibitory loop oscillating, and no claim of emergent")

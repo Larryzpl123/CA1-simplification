@@ -52,6 +52,20 @@ import pathlib
 CITED = {
     "36.07": "Zhang et al. (2019), eLife 8:e44320 -- awake S-gamma centre of "
              "gravity, 36.07 +/- 5.38 Hz. Quoted in the related work section.",
+    "30.1":  "NOT a measurement: the table number in 'Borgers, 2017, Table 30.1', "
+             "which is the locator for his drive- and conductance-dependence "
+             "comparison. A citation locator has a provenance like any other "
+             "number, and it is the citation.",
+    "0.66":  "Borgers (2017), Table 30.1: a 1% REDUCTION in the drive I_E to the "
+             "E-cell lengthens the two-cell PING period by 0.66%. Read from the "
+             "table, not from the author's description of it.",
+    "0.14":  "Borgers (2017), Table 30.1: a 1% increase in tau_d,I lengthens the "
+             "two-cell PING period by 0.14%.",
+    "0.10":  "Borgers (2017), Table 30.1: a 1% increase in g_IE lengthens the "
+             "two-cell PING period by 0.10%. NOTE this is SMALLER than the 0.14% "
+             "for tau_d,I. His email said the period depends on the conductance "
+             "'almost equally strongly'; the table says slightly less strongly. "
+             "Quote the three numbers, do not paraphrase them.",
 }
 
 # Numbers that are DERIVED, not measured. Each needs its derivation, here, in
@@ -60,6 +74,21 @@ CITED = {
 # purpose of the file.
 # ---------------------------------------------------------------------------
 DERIVED = {
+    "18":     "fraction of the 30-80 Hz band the notch excises at the adopted "
+              "width, quoted in the paper as '~18%'. Closed form: 9 comb teeth "
+              "(30,36,...,78 Hz) x 2 x 4 bins x df / 50 Hz. At df = 0.122 that is "
+              "17.6%. NOTE: counting the bins the mask actually drops gives 16.6%, "
+              "because |f - 6k| > 4*df is a strict inequality on a grid whose "
+              "points do not land on the teeth, so the exact figure depends on "
+              "the Welch grid. Nothing in this archive computes it; it is a "
+              "hand-written approximation in two places (the manuscript and "
+              "spectral_null.prominence_notched's docstring) that agree with each "
+              "other because they were written together, not because either was "
+              "checked. It is the only number in the paper that survives only on "
+              "its tilde. If it is ever quoted without one, compute it first.",
+    "21.2":   "spread of the five per-seed peaks at tau_GABA = 2 ms in the 80+20 "
+              "network = 55.9 - 34.7. Both endpoints are printed by "
+              "ping_scaling_test.py; the subtraction is not.",
     "0.32":   "expected v1 I->E synapses = 2 inh * 8 exc * 0.02",
     "0.04":   "expected v1 I->E in-degree = 2 inh * 0.02",
     "0.015":  "SE(p) at p=.05, N=200  = sqrt(.05*.95/200)",
@@ -125,7 +154,15 @@ def numbers_in(text):
     # about what a claim's value is.
     text = re.sub(r'\d+(?:\.\d+)?\s*(?:[-–—]|to)\s*\d+(?:\.\d+)?', '', text)
     out = {}
-    for m in re.finditer(r'(?<![\w.\-−/])(\d+\.\d+|\d{2,5})(?![\w./%])', text):
+    # The lookahead used to end in %, which excluded every percentage in the paper
+    # from the audit. Not by argument -- there is no comment explaining it -- and
+    # the count then read "279 claims, 0 unsupported" while never looking at
+    # "5.0% false positives", "83% of datasets", "100% power" or "~18% of the
+    # band". Those happen to be logged, so nothing was wrong; but a checker that
+    # silently skips a whole syntactic class is reporting on a smaller paper than
+    # the one it was handed. Removing % adds six claims and found one that had
+    # never been checked by anything. See DERIVED["18"].
+    for m in re.finditer(r'(?<![\w.\-−/])(\d+\.\d+|\d{2,5})(?![\w./])', text):
         n = m.group(1)
         if re.fullmatch(r'(19|20)\d\d', n):                # years
             continue

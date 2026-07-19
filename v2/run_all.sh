@@ -21,7 +21,7 @@ LOG="results_${STAMP}.log"
 
 # ---- expected fingerprints (sha256, first 12 hex chars) ----------------------
 declare -a FILES=(spectral_null.py ca1_v2.py artifact_demo.py ping_scaling_test.py v1_diagnosis.py)
-declare -a WANT=(5a50478f81c8 067a89672625 3a4732283381 09fb572c6587 568c312de2b8)
+declare -a WANT=(5a50478f81c8 817b29fbb9b6 3a4732283381 b2f43bf04529 568c312de2b8)
 
 sha12() {
     if command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | cut -c1-12

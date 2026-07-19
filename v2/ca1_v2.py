@@ -124,8 +124,27 @@ N_EXC_REF, N_INH_REF = 80, 20
 # pyramidal cell receives:  in-degree = N_inh * p_ie, so 20->80 interneurons
 # QUADRUPLES it. Without normalisation the "scaled 4x" arm would not test SCALE,
 # it would test "4x more inhibition". Scaling w by (reference in-degree)/(actual
-# in-degree) holds the total synaptic drive per cell constant, so size is the only
-# thing that varies.
+# in-degree) holds the MEAN total synaptic drive per cell constant.
+#
+# It does NOT hold "size the only thing that varies", which is what this comment
+# said until 2026-07-17. Christoph Borgers asked whether the conductances were
+# rescaled, and observed that if they are, the behaviour should barely depend on
+# the number of cells. They are, and it does, so the scaling is not doing what
+# the comment claimed. It fixes the mean and not the fluctuations: for N inputs
+# of weight w the mean goes as N*w, which this pins, but the variance goes as
+# N*w^2, which it divides by four. The in-degrees move with N and are not
+# controlled:
+#
+#                      80 + 20      320 + 80
+#     E->E in-degree      1.62          6.63
+#     I->E in-degree      5.20         20.30
+#
+# Brunel & Wang (2003), cited by this paper, hold the number of connections AND
+# the conductance fixed instead -- 500 cells at p = 0.4, 1,000 at p = 0.2, 2,000
+# at p = 0.1, in-degree 200 throughout -- "so as to keep unchanged the temporal
+# average and fluctuations of the synaptic currents as network size was varied".
+# That isolates N. This does not, and so this pair of conditions cannot say
+# whether N or the in-degree is what matters. The manuscript says so.
 def scaled_weights(n_exc, n_inh, p_ee, p_ei, p_ie, p_ii):
     def s(w_ref, n_pre_ref, p_ref, n_pre, p):
         return w_ref * (n_pre_ref * p_ref) / max(n_pre * p, 1e-12)
