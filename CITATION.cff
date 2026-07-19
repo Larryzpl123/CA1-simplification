@@ -1,38 +1,37 @@
 cff-version: 1.2.0
 message: "If you use this software or the results in it, please cite the preprint."
-title: "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms\" (v3)"
+title: "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms\""
 authors:
   - family-names: Zhong
     given-names: Peilin
     alias: Larry
     affiliation: "Shady Side Academy, Pittsburgh, PA, USA"
     email: 27zhongp@shadysideacademy.org
-version: "3.1"
-date-released: 2026-07-16
+version: "4.0"
+date-released: 2026-07-20
 license: MIT
 repository-code: "https://github.com/Larryzpl123/CA1-simplification"
 abstract: >-
   Reduced spiking-network models of hippocampal CA1 are validated by asking
-  whether they preserve theta and gamma, using spectral peak prominence. Where
-  theta is imposed as a drive rather than emergent, that combination makes the
-  criterion unusable. That a sharp drive places harmonics in the bands above it,
-  and that they are read as activity there, is already established. What this
-  work establishes, on data where the gamma content is known by construction, is
-  that the comb also MASKS a genuine rhythm: the statistic followed by every
-  screen in the paper rejects a real 40 Hz oscillation, and each screen is
-  correct to do so, because the peak it was handed was never the rhythm. Once
-  the comb is excised from the spectrum, emergent PING gamma is recovered in a
-  320-neuron network and confirmed by a pre-registered mechanistic test
-  (period = 16.8 + 0.760*tau_GABA ms; p = 0.0005). It is absent at 80 neurons.
-  This work does not adjudicate whether hippocampal slow gamma is real; its data
-  are simulated. Version 1 reached the opposite conclusion and is corrected here.
+  whether they preserve theta and gamma, using spectral peak prominence. In
+  these models theta is imposed as a drive. This work shows that combination
+  makes the criterion unusable: the drive's harmonic comb both creates false
+  gamma (100% false-positive rate against a surrogate null at tight phase
+  locking) and MASKS real gamma, and no screen recovers it, because a screen
+  can only reject a peak the statistic has already found. Once the comb is
+  excised from the spectrum before the maximum is taken, emergent PING gamma
+  is recovered and confirmed by a pre-registered mechanistic test: the cycle
+  period is affine in the inhibitory decay constant (slope +0.760 +/- 0.113,
+  p = 0.0005). Version 4 adds a controlled experiment showing that the switch
+  between the null result and the PING result is the input fluctuation and
+  not the cell count, and withdraws two claims made in earlier versions.
+  Version 1 of this work reached the opposite conclusion and is corrected here.
 keywords:
   - computational neuroscience
   - hippocampal CA1
   - PING
   - neural oscillations
   - spectral artifacts
-  - harmonic contamination
   - surrogate testing
   - pre-registration
   - reproducibility
@@ -47,7 +46,13 @@ references:
 identifiers:
   - type: doi
     value: 10.5281/zenodo.21265445
-    description: "All versions of the code. Resolves to the latest release."
+    description: >-
+      All versions of the code. This is the concept DOI, and it is the concept
+      DOI deliberately. A release-specific DOI is minted from the tag that
+      contains this file, so a file inside the archive cannot name it without
+      stating a number it could not know at the time it was written. Release
+      v3.0 shipped with that bug and had to be superseded by v3.1. The concept
+      DOI exists before the release and resolves to the latest one.
 preferred-citation:
   type: article
   title: "Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit"

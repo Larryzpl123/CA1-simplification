@@ -4,7 +4,7 @@
 
 ---
 
-> **The current paper is Version 3** ([10.5281/zenodo.21393420](https://doi.org/10.5281/zenodo.21393420)). It adds a related work section to Version 2 and narrows what the paper claims. No result changed and nothing was re-run.
+> **The current paper is Version 4** (all versions: [10.5281/zenodo.21272958](https://doi.org/10.5281/zenodo.21272958)). It **withdraws two claims** made in Versions 2 and 3, and answers the question they left open with a new controlled experiment. Neither withdrawal was caught by anything in this repository; both were put to the author by a researcher who works on PING. See `RELEASE_NOTES_v4.0.md`.
 >
 > ## ⚠️ Version 1 of this work reached a conclusion that Version 2 reverses.
 >
@@ -86,13 +86,21 @@ Raw logs from both machines are in `results/`.
 | `v2/artifact_demo.py` | every artifact, on synthetic spike trains, **with no network at all** | ~9 min |
 | `v2/ca1_v2.py` | the corrected CA1 microcircuit, and the positive control | ~17 min |
 | `v2/ping_scaling_test.py` | **the pre-registered PING test** — the only check that confirms | ~35 min |
-| `v2/make_figures.py` | the five figures, written to `figures/` | ~6 min |
+| `v2/make_figures.py` | the six figures, written to `figures/` | ~6 min |
+
+One script sits outside the hash gate, deliberately:
+
+| file | what it does | runtime |
+|---|---|---|
+| `v2/job_b_noise_matched.py` | **the fluctuation-matched networks of §3.8** — the new result in Version 4 | ~35 min |
+
+It is not gated because it changes no gated computation. It imports `ca1_v2.build_and_run` and `ping_scaling_test.test_rhythm` **unchanged** and calls them with different connection probabilities. It asserts at import that every matched coefficient of variation equals its target to within 1e-9 and that every matched probability is below 1, and it refuses to let the 80 + 20 result be interpreted unless its unchanged 320 + 80 control passes first. That control reproduces the gated code's fit to the last digit, which is what licenses trusting the number beside it.
 
 And three tools that check the work rather than doing it:
 
 | file | what it does |
 |---|---|
-| `v2/audit_manuscript.py` | extracts every number in the manuscript, looks for it in the logs, **exits non-zero on any it cannot find**. Currently: 274 claims, 254 in a log, 20 derived, 0 unsupported. |
+| `v2/audit_manuscript.py` | extracts every number in the manuscript, looks for it in the logs, **exits non-zero on any it cannot find**. Currently: 290 claims, 264 in a log, 21 derived, 5 cited, 0 unsupported. Until v4.0 its extractor skipped every percentage in the paper, silently; see `RELEASE_NOTES_v4.0.md`. |
 | `v2/compare_runs.py` | compares two runs on their numbers and verdicts, ignoring prose and timings. So a comment change does not require re-running an hour of simulation on a second machine to certify it. |
 | `v2/semantic_hash.py` | fingerprints the AST rather than the source bytes: two files with the same semantic hash compute the same thing. |
 
@@ -127,11 +135,11 @@ The two numbers collide, so read this once:
 
 | | numbering | meaning |
 |---|---|---|
-| **the paper** | Version 1, Version 2, **Version 3** | which *paper*. Whole integers only |
-| **the paper's Zenodo record** | 1.0, 2.0, 3.0, 3.0.1, **3.0.2** | which *upload* of that paper |
-| **this code** | v1.0, v1.1, v2.0, v2.1, v2.2, v3.0, **v3.1** | which *release of the code* for that paper |
+| **the paper** | Version 1, Version 2, Version 3, **Version 4** | which *paper*. Whole integers only |
+| **the paper's Zenodo record** | 1.0, 2.0, 3.0, 3.0.1, 3.0.2, **4.0** | which *upload* of that paper |
+| **this code** | v1.0, v1.1, v2.0, v2.1, v2.2, v3.0, v3.1, **v4.0** | which *release of the code* for that paper |
 
-**There is no paper v2.1, no paper v3.1 and no fifth paper.** The code's major number tracks the paper it was written for: v3.0 and v3.1 are two releases of the code for Version **3**, and v2.0–v2.2 accompanied Version 2 and are superseded, not earlier papers.
+**There is no paper v2.1, no paper v3.1 and no fifth paper.** The code's major number tracks the paper it was written for: v3.0 and v3.1 are two releases of the code for Version **3**, v4.0 is the code for Version **4**, and v2.0–v2.2 accompanied Version 2 and are superseded, not earlier papers.
 
 The paper's Zenodo record has a third component when an upload had to be redone without the paper changing. 3.0 was a .docx by mistake; 3.0.1 carried a manuscript whose title page and reference list disagreed about which code release accompanies it. The text is identical across 3.0, 3.0.1 and 3.0.2. Zenodo files cannot be replaced after publication, so these are separate records rather than edits, and the superseded ones stay visible and say so.
 
@@ -143,14 +151,18 @@ The Zenodo record for the code and the Zenodo record for the paper are separate 
 
 | | DOI |
 |---|---|
-| **v3 preprint** | [10.5281/zenodo.21393420](https://doi.org/10.5281/zenodo.21393420) · all versions: `10.5281/zenodo.21272958` |
-| **v3 code (v3.1)** | [10.5281/zenodo.21392319](https://doi.org/10.5281/zenodo.21392319) · all versions: `10.5281/zenodo.21265445` |
+| **v4 preprint** | all versions, resolves to latest: [10.5281/zenodo.21272958](https://doi.org/10.5281/zenodo.21272958) |
+| **v4 code (v4.0)** | all versions, resolves to latest: [10.5281/zenodo.21265445](https://doi.org/10.5281/zenodo.21265445) |
+| v3 preprint | [10.5281/zenodo.21393420](https://doi.org/10.5281/zenodo.21393420) |
+| v3 code (v3.1) | [10.5281/zenodo.21392319](https://doi.org/10.5281/zenodo.21392319) |
 | v2 preprint | [10.5281/zenodo.21352530](https://doi.org/10.5281/zenodo.21352530) |
 | v2 code | [10.5281/zenodo.21351830](https://doi.org/10.5281/zenodo.21351830) |
 | v1 preprint | [10.5281/zenodo.21272959](https://doi.org/10.5281/zenodo.21272959) · carries a notice: its conclusion is wrong |
 | v1 code | [10.5281/zenodo.21273211](https://doi.org/10.5281/zenodo.21273211) |
 
-The five gated simulation scripts in v3.1 are byte-identical to those in v2.2, so the run logs in `results/` are the logs behind Version 3 of the paper. Nothing was re-run for it.
+The version-specific DOIs above are deliberately not quoted for v4. A release DOI is minted *from* the release, so any file inside the archive that names it states a number it could not know; v3.0 shipped with that bug and had to be superseded. The concept DOIs exist beforehand and resolve to the latest version.
+
+Of the five gated simulation scripts in v4.0, three are byte-identical to v2.2 and two (`ca1_v2.py`, `ping_scaling_test.py`) changed in comments and printed prose only, with an identical AST and every number and verdict certified identical by `compare_runs.py`. `ping_scaling_test.py` was re-run anyway and the new log is archived, because the previous log printed a claim the paper has now retracted, and an archive that contradicts the paper is the failure this paper is about.
 
 ---
 
@@ -160,7 +172,7 @@ The five gated simulation scripts in v3.1 are byte-identical to those in v2.2, s
 v2/          the corrected code. Start here.
 v1/          v1 source, unmodified. Kept so the corrigendum can be checked.
 results/     raw run logs from both machines. The reproducibility claim lives here.
-figures/     the four figures (pdf + png). The ONLY copy. v2/make_figures.py
+figures/     the six figures (pdf + png). The ONLY copy. v2/make_figures.py
              writes here and nowhere else -- see RELEASE_NOTES_v2.1.md for why
              that sentence had to be written down.
 ```
