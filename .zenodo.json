@@ -1,8 +1,8 @@
 {
-  "title": "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit\" (v3)",
+  "title": "CA1-simplification: Code, run logs and figures for \"Screens Reject, Only Mechanism Confirms: Recovering Emergent Gamma in a Reduced Hippocampal CA1 Microcircuit\"",
   "upload_type": "software",
   "license": "MIT",
-  "version": "3.1",
+  "version": "4.0",
   "creators": [
     {
       "name": "Zhong, Peilin",
@@ -22,7 +22,6 @@
     "PING",
     "neural oscillations",
     "spectral artifacts",
-    "harmonic contamination",
     "surrogate testing",
     "pre-registration",
     "reproducibility"
